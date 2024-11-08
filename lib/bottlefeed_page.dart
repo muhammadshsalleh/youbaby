@@ -83,7 +83,7 @@ class BottleFeedingTimerService extends ChangeNotifier {
 class BottleFeedingPage extends StatelessWidget {
   final int userId;
 
-  const BottleFeedingPage({Key? key, required this.userId}) : super(key: key);
+  const BottleFeedingPage({super.key, required this.userId});
 
   @override
   Widget build(BuildContext context) {
@@ -97,8 +97,7 @@ class BottleFeedingPage extends StatelessWidget {
 class _BottleFeedingPageContent extends StatefulWidget {
   final int userId;
 
-  const _BottleFeedingPageContent({Key? key, required this.userId})
-      : super(key: key);
+  const _BottleFeedingPageContent({super.key, required this.userId});
 
   @override
   _BottleFeedingPageContentState createState() =>
@@ -143,7 +142,9 @@ class _BottleFeedingPageContentState extends State<_BottleFeedingPageContent> {
             icon: const Icon(Icons.history),
             onPressed: () => Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => FeedingHistoryPage(userId: widget.userId)),
+              MaterialPageRoute(
+                  builder: (context) =>
+                      FeedingHistoryPage(userId: widget.userId)),
             ),
           ),
         ],
@@ -205,16 +206,6 @@ class _BottleFeedingPageContentState extends State<_BottleFeedingPageContent> {
       children: [
         const Text('Mode: ', style: TextStyle(fontSize: 16)),
         ToggleButtons(
-          children: const [
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Text('Timer', style: TextStyle(fontSize: 16)),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Text('Manual', style: TextStyle(fontSize: 16)),
-            ),
-          ],
           isSelected: [isTimerMode, !isTimerMode],
           onPressed: (int index) {
             setState(() {
@@ -226,6 +217,16 @@ class _BottleFeedingPageContentState extends State<_BottleFeedingPageContent> {
           fillColor: Colors.blue[300],
           borderColor: Colors.blue[300],
           selectedBorderColor: Colors.blue[300],
+          children: const [
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: Text('Timer', style: TextStyle(fontSize: 16)),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: Text('Manual', style: TextStyle(fontSize: 16)),
+            ),
+          ],
         ),
       ],
     );
@@ -246,8 +247,10 @@ class _BottleFeedingPageContentState extends State<_BottleFeedingPageContent> {
               keyboardType: TextInputType.datetime,
               decoration: InputDecoration(
                 hintText: 'MM:SS',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               ),
               onChanged: (value) {
                 // You might want to add validation here
@@ -288,16 +291,6 @@ class _BottleFeedingPageContentState extends State<_BottleFeedingPageContent> {
       children: [
         const Text('Unit: ', style: TextStyle(fontSize: 16)),
         ToggleButtons(
-          children: [
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Text('ml', style: TextStyle(fontSize: 16)),
-            ),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Text('oz', style: TextStyle(fontSize: 16)),
-            ),
-          ],
           isSelected: [isML, !isML],
           onPressed: (int index) {
             setState(() {
@@ -310,6 +303,16 @@ class _BottleFeedingPageContentState extends State<_BottleFeedingPageContent> {
           fillColor: Colors.blue[300],
           borderColor: Colors.blue[300],
           selectedBorderColor: Colors.blue[300],
+          children: [
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: Text('ml', style: TextStyle(fontSize: 16)),
+            ),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: Text('oz', style: TextStyle(fontSize: 16)),
+            ),
+          ],
         ),
       ],
     );
@@ -437,7 +440,8 @@ class _BottleFeedingPageContentState extends State<_BottleFeedingPageContent> {
     return '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
   }
 
-  void _saveBottleFeedingSession(BuildContext context, BottleFeedingTimerService timerService) async {
+  void _saveBottleFeedingSession(
+      BuildContext context, BottleFeedingTimerService timerService) async {
     final supabase = Supabase.instance.client;
     DateTime now = DateTime.now();
 
@@ -448,7 +452,8 @@ class _BottleFeedingPageContentState extends State<_BottleFeedingPageContent> {
     if (isTimerMode) {
       duration = timerService.elapsedSeconds;
       endTime = now;
-      startTime = timerService.startTime ?? now.subtract(Duration(seconds: duration));
+      startTime =
+          timerService.startTime ?? now.subtract(Duration(seconds: duration));
     } else {
       // Parse the manual duration input
       List<String> parts = durationController.text.split(':');
@@ -483,7 +488,8 @@ class _BottleFeedingPageContentState extends State<_BottleFeedingPageContent> {
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Bottle feeding session saved successfully')),
+        const SnackBar(
+            content: Text('Bottle feeding session saved successfully')),
       );
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(

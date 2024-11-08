@@ -7,7 +7,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class AlbumAddPage extends StatefulWidget {
   final int userID;
 
-  const AlbumAddPage({Key? key, required this.userID}) : super(key: key);
+  const AlbumAddPage({super.key, required this.userID});
 
   @override
   _AlbumAddPageState createState() => _AlbumAddPageState();
@@ -25,7 +25,7 @@ class _AlbumAddPageState extends State<AlbumAddPage> {
   bool _isUploading = false;
   bool _isSubmitting = false;
   String? _errorMessage;
-  List<String> _selectedTags = [];
+  final List<String> _selectedTags = [];
   bool _hasExistingAlbum = false;
 
   // Predefined milestones
@@ -359,7 +359,7 @@ class _AlbumAddPageState extends State<AlbumAddPage> {
                       value: value,
                       child: Text(value),
                     );
-                  }).toList(),
+                  }),
                 ],
                 onChanged: (String? value) {
                   setState(() => _milestone = value);

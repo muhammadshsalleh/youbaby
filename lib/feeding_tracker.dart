@@ -7,7 +7,7 @@ import 'package:youbaby/bottlefeed_page.dart';
 class FeedingTrackerApp extends StatelessWidget {
   final int userId;
 
-  const FeedingTrackerApp({Key? key, required this.userId}) : super(key: key);
+  const FeedingTrackerApp({super.key, required this.userId});
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +25,7 @@ class FeedingTrackerApp extends StatelessWidget {
 class FeedingTrackerPage extends StatefulWidget {
   final int userId;
 
-  const FeedingTrackerPage({Key? key, required this.userId}) : super(key: key);
+  const FeedingTrackerPage({super.key, required this.userId});
 
   @override
   _FeedingTrackerPageState createState() => _FeedingTrackerPageState();

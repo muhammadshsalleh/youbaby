@@ -6,7 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class GrowthTrackerApp extends StatelessWidget {
   final int userId;
-  const GrowthTrackerApp({Key? key, required this.userId}) : super(key: key);
+  const GrowthTrackerApp({super.key, required this.userId});
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +43,7 @@ class _GrowthTrackerHomeState extends State<GrowthTrackerHome> {
           .select('babyName, babyBirthday')
           .eq('id', widget.userId)
           .single();
-      
+
       setState(() {
         babyName = userResponse['babyName'];
         if (userResponse['babyBirthday'] != null) {

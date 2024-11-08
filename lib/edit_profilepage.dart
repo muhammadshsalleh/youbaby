@@ -120,9 +120,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           .from('profiles')
           .uploadBinary(fileName, bytes);
 
-      if (response != null) {
-        //throw response;
-      }
+      //throw response;
 
       final imageUrl = Supabase.instance.client.storage
           .from('profiles')

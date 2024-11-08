@@ -2,25 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:youbaby/settings_page.dart';
 
 class SubscriptionPaymentPage extends StatefulWidget {
+  const SubscriptionPaymentPage({super.key});
+
   @override
   _SubscriptionPaymentPageState createState() =>
       _SubscriptionPaymentPageState();
 }
 
 class _SubscriptionPaymentPageState extends State<SubscriptionPaymentPage> {
-  String _subscriptionType = "None";
+  final String _subscriptionType = "None";
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Subscription Payment Settings", 
-        style: TextStyle(
-            color: Color(0xFFEBE0D0),
-            fontSize: 24.0,
-            fontWeight: FontWeight.bold,
-          )
-        ),
+        title: Text("Subscription Payment Settings",
+            style: TextStyle(
+              color: Color(0xFFEBE0D0),
+              fontSize: 24.0,
+              fontWeight: FontWeight.bold,
+            )),
         backgroundColor: Color(0xFFA81B60),
       ),
       body: Padding(
@@ -75,15 +76,15 @@ class _SubscriptionPaymentPageState extends State<SubscriptionPaymentPage> {
                   },
                 );
               },
-              child: Text(
-                "Cancel Subscription",
-                style: TextStyle(color: Colors.white),
-              ),
               style: ElevatedButton.styleFrom(
                 //primary: Colors.red, // Button color
                 backgroundColor: Colors.red,
                 padding: EdgeInsets.symmetric(
                     vertical: 16, horizontal: 10), // Button height
+              ),
+              child: Text(
+                "Cancel Subscription",
+                style: TextStyle(color: Colors.white),
               ),
             ),
           ],

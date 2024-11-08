@@ -99,7 +99,7 @@ class TimerService extends ChangeNotifier {
 class BreastfeedingPage extends StatelessWidget {
   final int userId;
 
-  const BreastfeedingPage({Key? key, required this.userId}) : super(key: key);
+  const BreastfeedingPage({super.key, required this.userId});
 
   @override
   Widget build(BuildContext context) {
@@ -113,8 +113,7 @@ class BreastfeedingPage extends StatelessWidget {
 class _BreastfeedingPageContent extends StatelessWidget {
   final int userId;
 
-  const _BreastfeedingPageContent({Key? key, required this.userId})
-      : super(key: key);
+  const _BreastfeedingPageContent({super.key, required this.userId});
 
   @override
   Widget build(BuildContext context) {

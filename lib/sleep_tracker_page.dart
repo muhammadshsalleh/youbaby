@@ -28,8 +28,8 @@ class _SleepTrackerPageState extends State<SleepTrackerPage> {
 
   String _currentTime = '00:00:00'; // New variable to store current time
   bool _canSave = false;
-  PanelController _panelController = PanelController();
-  bool _isPanelOpen = false;
+  final PanelController _panelController = PanelController();
+  final bool _isPanelOpen = false;
   late Timer _clockTimer;
   late Color _backgroundColor;
   late Color _textColor;
@@ -39,10 +39,14 @@ class _SleepTrackerPageState extends State<SleepTrackerPage> {
   String _currentFriendlyMessage = '';
 
   String _sleepQuality = 'Good';
-  List<String> _sleepDisruptions = [];
+  final List<String> _sleepDisruptions = [];
 
-  List<String> _sleepEnvironmentOptions = [
-    'Dark', 'Quiet', 'White Noise', 'Cool', 'Warm'
+  final List<String> _sleepEnvironmentOptions = [
+    'Dark',
+    'Quiet',
+    'White Noise',
+    'Cool',
+    'Warm'
   ];
   String _sleepEnvironment = '';
   List<String> _selectedEnvironment = [];
@@ -62,7 +66,8 @@ class _SleepTrackerPageState extends State<SleepTrackerPage> {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _sleepEnvironment = prefs.getString('sleep_environment') ?? '';
-      _selectedEnvironment = _sleepEnvironment.split(', ')
+      _selectedEnvironment = _sleepEnvironment
+          .split(', ')
           .where((item) => _sleepEnvironmentOptions.contains(item))
           .toList();
     });
@@ -113,7 +118,7 @@ class _SleepTrackerPageState extends State<SleepTrackerPage> {
     });
   }
 
-   Widget _buildSleepEnvironmentButton() {
+  Widget _buildSleepEnvironmentButton() {
     return ElevatedButton.icon(
       onPressed: _showSleepEnvironmentDialog,
       icon: Icon(Icons.bed),
@@ -129,82 +134,82 @@ class _SleepTrackerPageState extends State<SleepTrackerPage> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              title: Text('Sleep Environment',
-                  style: TextStyle(color: _accentColor, fontWeight: FontWeight.bold)),
-              content: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Select all that apply:',
-                        style: TextStyle(fontWeight: FontWeight.w500)),
-                    SizedBox(height: 10),
-                    Wrap(
-                      spacing: 8.0,
-                      runSpacing: 8.0,
-                      children: _sleepEnvironmentOptions.map((String option) {
-                        return FilterChip(
-                          label: Text(option),
-                          selected: _selectedEnvironment.contains(option),
-                          onSelected: (bool selected) {
-                            setState(() {
-                              if (selected) {
-                                _selectedEnvironment.add(option);
-                              } else {
-                                _selectedEnvironment.remove(option);
-                              }
-                            });
-                          },
-                          selectedColor: _accentColor.withOpacity(0.3),
-                          checkmarkColor: _accentColor,
-                        );
-                      }).toList(),
-                    ),
-                    SizedBox(height: 10),
-                    Wrap(
-                      spacing: 8.0,
-                      runSpacing: 8.0,
-                      children: _selectedEnvironment
-                          .where((item) => !_sleepEnvironmentOptions.contains(item))
-                          .map((String item) {
-                        return Chip(
-                          label: Text(item),
-                          onDeleted: () {
-                            setState(() {
-                              _selectedEnvironment.remove(item);
-                            });
-                          },
-                          deleteIconColor: Colors.red,
-                        );
-                      }).toList(),
-                    ),
-                  ],
-                ),
-              ),
-              actions: <Widget>[
-                TextButton(
-                  child: Text('Cancel'),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-                ElevatedButton(
-                  child: Text('Save'),
-                  onPressed: () {
-                    _saveSleepEnvironment();
-                    Navigator.of(context).pop();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _accentColor,
+        return StatefulBuilder(builder: (context, setState) {
+          return AlertDialog(
+            title: Text('Sleep Environment',
+                style: TextStyle(
+                    color: _accentColor, fontWeight: FontWeight.bold)),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Select all that apply:',
+                      style: TextStyle(fontWeight: FontWeight.w500)),
+                  SizedBox(height: 10),
+                  Wrap(
+                    spacing: 8.0,
+                    runSpacing: 8.0,
+                    children: _sleepEnvironmentOptions.map((String option) {
+                      return FilterChip(
+                        label: Text(option),
+                        selected: _selectedEnvironment.contains(option),
+                        onSelected: (bool selected) {
+                          setState(() {
+                            if (selected) {
+                              _selectedEnvironment.add(option);
+                            } else {
+                              _selectedEnvironment.remove(option);
+                            }
+                          });
+                        },
+                        selectedColor: _accentColor.withOpacity(0.3),
+                        checkmarkColor: _accentColor,
+                      );
+                    }).toList(),
                   ),
+                  SizedBox(height: 10),
+                  Wrap(
+                    spacing: 8.0,
+                    runSpacing: 8.0,
+                    children: _selectedEnvironment
+                        .where(
+                            (item) => !_sleepEnvironmentOptions.contains(item))
+                        .map((String item) {
+                      return Chip(
+                        label: Text(item),
+                        onDeleted: () {
+                          setState(() {
+                            _selectedEnvironment.remove(item);
+                          });
+                        },
+                        deleteIconColor: Colors.red,
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              TextButton(
+                child: Text('Cancel'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  _saveSleepEnvironment();
+                  Navigator.of(context).pop();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _accentColor,
                 ),
-              ],
-            );
-          }
-        );
+                child: Text('Save'),
+              ),
+            ],
+          );
+        });
       },
     );
   }
@@ -533,7 +538,7 @@ class _SleepTrackerPageState extends State<SleepTrackerPage> {
   }
 
   void _startTimer() {
-    _timer?.cancel(); // Cancel any existing timer
+    _timer.cancel(); // Cancel any existing timer
     _timer = Timer.periodic(const Duration(milliseconds: 100), _updateTime);
   }
 
@@ -598,7 +603,7 @@ class _SleepTrackerPageState extends State<SleepTrackerPage> {
   }
 
   void _resetTimerCompletely() {
-    _timer?.cancel();
+    _timer.cancel();
     setState(() {
       _isRunning = false;
       _isPaused = false;
@@ -613,23 +618,23 @@ class _SleepTrackerPageState extends State<SleepTrackerPage> {
   }
 
   void _resetTimer() {
-  if (_isRunning || _isPaused) {
-    final endTime = DateTime.now();
-    final duration =
-        _startTime != null ? endTime.difference(_startTime!) : Duration.zero;
+    if (_isRunning || _isPaused) {
+      final endTime = DateTime.now();
+      final duration =
+          _startTime != null ? endTime.difference(_startTime!) : Duration.zero;
 
-    if (_startTime != null && duration.inMinutes >= 1) {
-      _saveSleepRecord(_startTime!, endTime, duration);
-      print("The duration sleep $duration");
-      _resetTimerCompletely();
-      _updateColorScheme();
-      _updateFriendlyMessage();
-    } else {
-      _showStyledAlertDialog(
-          'Sleep duration must be at least 1 minute to save.');
+      if (_startTime != null && duration.inMinutes >= 1) {
+        _saveSleepRecord(_startTime!, endTime, duration);
+        print("The duration sleep $duration");
+        _resetTimerCompletely();
+        _updateColorScheme();
+        _updateFriendlyMessage();
+      } else {
+        _showStyledAlertDialog(
+            'Sleep duration must be at least 1 minute to save.');
+      }
     }
   }
-}
 
   bool _canSaveTimer() {
     if (_startTime == null) return false;
@@ -639,22 +644,23 @@ class _SleepTrackerPageState extends State<SleepTrackerPage> {
   }
 
   String _determineSleepQuality(Duration duration) {
-  final minutes = duration.inMinutes;
-  print("Determining sleep quality for duration: $duration (${duration.inMinutes} minutes)");
-  if (minutes >= 60) {
-    print("Quality: Excellent");
-    return 'Excellent';
-  } else if (minutes >= 45 && minutes < 60) {
-    print("Quality: Good");
-    return 'Good';
-  } else {
-    print("Quality: Poor");
-    return 'Poor';
+    final minutes = duration.inMinutes;
+    print(
+        "Determining sleep quality for duration: $duration (${duration.inMinutes} minutes)");
+    if (minutes >= 60) {
+      print("Quality: Excellent");
+      return 'Excellent';
+    } else if (minutes >= 45 && minutes < 60) {
+      print("Quality: Good");
+      return 'Good';
+    } else {
+      print("Quality: Poor");
+      return 'Poor';
+    }
   }
-}
 
   Future<void> _saveSleepRecord(
-    DateTime start, DateTime end, Duration duration) async {
+      DateTime start, DateTime end, Duration duration) async {
     final supabase = Supabase.instance.client;
 
     final sleepQuality = _determineSleepQuality(duration);
@@ -683,35 +689,35 @@ class _SleepTrackerPageState extends State<SleepTrackerPage> {
   }
 
   void _toggleTimer() {
-  if (!_isRunning) {
-    setState(() {
-      _startTime = DateTime.now();
-      _isRunning = true;
-      _isPaused = false;
-      _pauseTime = null;
-      _startTimer();
-    });
-  } else if (_isPaused) {
-    setState(() {
-      if (_pauseTime != null) {
-        final pauseDuration = DateTime.now().difference(_pauseTime!);
-        _startTime = _startTime?.add(pauseDuration);
-      }
-      _isPaused = false;
-      _pauseTime = null;
-      _startTimer();
-    });
-  } else {
-    setState(() {
-      _isPaused = true;
-      _pauseTime = DateTime.now();
-      _timer?.cancel();
-    });
+    if (!_isRunning) {
+      setState(() {
+        _startTime = DateTime.now();
+        _isRunning = true;
+        _isPaused = false;
+        _pauseTime = null;
+        _startTimer();
+      });
+    } else if (_isPaused) {
+      setState(() {
+        if (_pauseTime != null) {
+          final pauseDuration = DateTime.now().difference(_pauseTime!);
+          _startTime = _startTime?.add(pauseDuration);
+        }
+        _isPaused = false;
+        _pauseTime = null;
+        _startTimer();
+      });
+    } else {
+      setState(() {
+        _isPaused = true;
+        _pauseTime = DateTime.now();
+        _timer.cancel();
+      });
+    }
+    _saveTimerState();
+    _updateColorScheme();
+    _updateFriendlyMessage();
   }
-  _saveTimerState();
-  _updateColorScheme();
-  _updateFriendlyMessage();
-}
 
   @override
   Widget build(BuildContext context) {
@@ -743,7 +749,7 @@ class _SleepTrackerPageState extends State<SleepTrackerPage> {
 
   @override
   void dispose() {
-    _timer?.cancel();
+    _timer.cancel();
     super.dispose();
   }
 }

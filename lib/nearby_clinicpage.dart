@@ -8,7 +8,7 @@ import 'dart:convert';
 class NearbyClinicPage extends StatefulWidget {
   final String? userCity;
 
-  const NearbyClinicPage({Key? key, this.userCity}) : super(key: key);
+  const NearbyClinicPage({super.key, this.userCity});
 
   @override
   State<NearbyClinicPage> createState() => _NearbyClinicPageState();
@@ -90,8 +90,7 @@ class _NearbyClinicPageState extends State<NearbyClinicPage> {
             'Unknown';
         state = result['address']['state'] ?? 'Unknown';
         country = result['address']['country'] ?? 'Unknown';
-        _locationMessage =
-            "Clinics near $city, $state, $country";
+        _locationMessage = "Clinics near $city, $state, $country";
       });
     } else {
       throw Exception('Failed to fetch address');
@@ -190,7 +189,7 @@ class _NearbyClinicPageState extends State<NearbyClinicPage> {
               ));
         }).toList();
       });
-      
+
       // Center the map on the user's location after fetching amenities
       mapController.move(LatLng(latitude!, longitude!), 13.0);
     } catch (e) {
@@ -295,7 +294,9 @@ class _NearbyClinicPageState extends State<NearbyClinicPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Nearby Clinics', style: TextStyle(
+        title: const Text(
+          'Nearby Clinics',
+          style: TextStyle(
             color: Color(0xFFEBE0D0),
             fontSize: 24.0,
             fontWeight: FontWeight.bold,

@@ -6,11 +6,11 @@ class EnhancedPumpingRecommendations extends StatelessWidget {
   final int pumpingFrequencyPerDay;
 
   const EnhancedPumpingRecommendations({
-    Key? key,
+    super.key,
     required this.babyAgeInMonths,
     required this.averageVolumePerSession,
     required this.pumpingFrequencyPerDay,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +46,7 @@ class EnhancedPumpingRecommendations extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Recommended Pumping for ${babyAgeInMonths} Month Old',
+              'Recommended Pumping for $babyAgeInMonths Month Old',
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
@@ -79,7 +79,9 @@ class EnhancedPumpingRecommendations extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              isInDangerZone ? 'Warning: Low Milk Production' : 'Milk Production Status',
+              isInDangerZone
+                  ? 'Warning: Low Milk Production'
+                  : 'Milk Production Status',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -133,7 +135,7 @@ class EnhancedPumpingRecommendations extends StatelessWidget {
     final (minVolume, maxVolume) = _getRecommendedVolumeRange();
     final recommendedFrequency = _getRecommendedFrequency();
     return averageVolumePerSession >= minVolume &&
-           averageVolumePerSession <= maxVolume &&
-           pumpingFrequencyPerDay >= recommendedFrequency;
+        averageVolumePerSession <= maxVolume &&
+        pumpingFrequencyPerDay >= recommendedFrequency;
   }
 }

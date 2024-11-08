@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 // import 'translation_service.dart';
 
 class LanguageSettingsPage extends StatefulWidget {
+  const LanguageSettingsPage({super.key});
+
   // final Function(Locale) onLocaleChanged;
 
   // LanguageSettingsPage({required this.onLocaleChanged});
@@ -27,7 +29,7 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
   //   } catch (e) {
   //     print(e); // Handle any errors here
   //   }
-  // }     
+  // }
 
   @override
   Widget build(BuildContext context) {

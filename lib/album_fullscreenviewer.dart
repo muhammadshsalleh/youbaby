@@ -191,4 +191,4 @@ class FullScreenViewerState extends State<FullScreenViewer> {
       ),
     );
   }
-} //for full screen
+} //for full screen on album page

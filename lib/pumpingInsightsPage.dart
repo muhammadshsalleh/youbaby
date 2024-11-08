@@ -10,10 +10,10 @@ class PumpingInsightsPage extends StatefulWidget {
   final int babyAgeInMonths;
 
   const PumpingInsightsPage({
-    Key? key,
+    super.key,
     required this.userId,
     required this.babyAgeInMonths,
-  }) : super(key: key);
+  });
 
   @override
   _PumpingInsightsPageState createState() => _PumpingInsightsPageState();
@@ -69,14 +69,14 @@ class _PumpingInsightsPageState extends State<PumpingInsightsPage> {
     }
   }
 
-   Map<String, dynamic> _calculateInsights(
+  Map<String, dynamic> _calculateInsights(
       List<Map<String, dynamic>> pumpingData) {
     int totalPumpings = 0;
-  int totalDurationSeconds = 0;
-  double totalVolume = 0;
-  double leftBreastVolume = 0;
-  double rightBreastVolume = 0;
-  Map<String, List<Map<String, dynamic>>> pumpingsByDay = {};
+    int totalDurationSeconds = 0;
+    double totalVolume = 0;
+    double leftBreastVolume = 0;
+    double rightBreastVolume = 0;
+    Map<String, List<Map<String, dynamic>>> pumpingsByDay = {};
 
     for (var pumping in pumpingData) {
       DateTime startTime = DateTime.parse(pumping['startTime']);
@@ -90,7 +90,7 @@ class _PumpingInsightsPageState extends State<PumpingInsightsPage> {
 
       if (pumping['quantity'] != null) {
         double quantity = (pumping['quantity'] as num).toDouble();
-         totalVolume += quantity;
+        totalVolume += quantity;
 
         // Assuming we have a 'breast' field in the pumping data
         // where 'left' represents the left breast and 'right' represents the right breast
@@ -99,7 +99,7 @@ class _PumpingInsightsPageState extends State<PumpingInsightsPage> {
         } else if (pumping['breastSide'] == 'Right') {
           rightBreastVolume += quantity;
         }
-      }      
+      }
     }
 
     double averageVolume = totalPumpings > 0 ? totalVolume / totalPumpings : 0;
@@ -108,12 +108,12 @@ class _PumpingInsightsPageState extends State<PumpingInsightsPage> {
 
     return {
       'totalPumpings': totalPumpings,
-    'averageDuration': Duration(seconds: averageDurationSeconds),
-    'averageVolume': averageVolume,
-    'totalVolume': totalVolume,
-    'leftBreastVolume': leftBreastVolume,
-    'rightBreastVolume': rightBreastVolume,
-    'pumpingsByDay': pumpingsByDay,
+      'averageDuration': Duration(seconds: averageDurationSeconds),
+      'averageVolume': averageVolume,
+      'totalVolume': totalVolume,
+      'leftBreastVolume': leftBreastVolume,
+      'rightBreastVolume': rightBreastVolume,
+      'pumpingsByDay': pumpingsByDay,
     };
   }
 
@@ -122,72 +122,76 @@ class _PumpingInsightsPageState extends State<PumpingInsightsPage> {
       return {
         'recommendedFrequency': 8,
         'recommendedVolumeRange': [60.0, 90.0],
-        'recommendation': 'Pump 8-12 times per day, aiming for 60-90 ml per session.',
+        'recommendation':
+            'Pump 8-12 times per day, aiming for 60-90 ml per session.',
       };
     } else if (ageInMonths < 6) {
       return {
         'recommendedFrequency': 6,
         'recommendedVolumeRange': [120.0, 180.0],
-        'recommendation': 'Pump 6-8 times per day, aiming for 120-180 ml per session.',
+        'recommendation':
+            'Pump 6-8 times per day, aiming for 120-180 ml per session.',
       };
     } else {
       return {
         'recommendedFrequency': 5,
         'recommendedVolumeRange': [180.0, 240.0],
-        'recommendation': 'Pump 5-6 times per day, aiming for 180-240 ml per session.',
+        'recommendation':
+            'Pump 5-6 times per day, aiming for 180-240 ml per session.',
       };
     }
   }
 
   @override
-Widget build(BuildContext context) {
-  return Scaffold(
-    body: Column(
-      children: [
-        _buildTimePeriodSelector(),
-        Expanded(
-          child: FutureBuilder<Map<String, dynamic>>(
-            future: _insightsFuture,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              if (snapshot.hasError) {
-                return const Center(child: Text('Error loading insights'));
-              }
-              
-              final insights = snapshot.data ?? {};
-              final hasData = insights['totalPumpings'] != null && 
-                             insights['totalPumpings'] > 0;
-              
-              if (!hasData) {
-                return _buildNoDataMessage();
-              }
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Column(
+        children: [
+          _buildTimePeriodSelector(),
+          Expanded(
+            child: FutureBuilder<Map<String, dynamic>>(
+              future: _insightsFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (snapshot.hasError) {
+                  return const Center(child: Text('Error loading insights'));
+                }
 
-              return SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildOverviewCard(insights),
-                    const SizedBox(height: 16),
-                    _buildPumpingProgressBar(insights),
-                    const SizedBox(height: 16),
-                    _buildBreastMilkDistributionChart(insights), // Add this line
-                    const SizedBox(height: 16),
-                    _buildPumpingVolumeChart(insights, _selectedTimePeriod),
-                    const SizedBox(height: 16),
-                    _buildPumpingRecommendations(insights),
-                  ],
-                ),
-              );
-            },
+                final insights = snapshot.data ?? {};
+                final hasData = insights['totalPumpings'] != null &&
+                    insights['totalPumpings'] > 0;
+
+                if (!hasData) {
+                  return _buildNoDataMessage();
+                }
+
+                return SingleChildScrollView(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildOverviewCard(insights),
+                      const SizedBox(height: 16),
+                      _buildPumpingProgressBar(insights),
+                      const SizedBox(height: 16),
+                      _buildBreastMilkDistributionChart(
+                          insights), // Add this line
+                      const SizedBox(height: 16),
+                      _buildPumpingVolumeChart(insights, _selectedTimePeriod),
+                      const SizedBox(height: 16),
+                      _buildPumpingRecommendations(insights),
+                    ],
+                  ),
+                );
+              },
+            ),
           ),
-        ),
-      ],
-    ),
-  );
-}
+        ],
+      ),
+    );
+  }
 
   Widget _buildNoDataMessage() {
     String periodText;
@@ -202,7 +206,7 @@ Widget build(BuildContext context) {
         periodText = 'in the last two weeks';
         break;
     }
-    
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -415,91 +419,93 @@ Widget build(BuildContext context) {
   }
 
   Widget _buildBreastMilkDistributionChart(Map<String, dynamic> insights) {
-  double leftBreastVolume = insights['leftBreastVolume'] ?? 0.0;
-  double rightBreastVolume = insights['rightBreastVolume'] ?? 0.0;
-  double totalVolume = leftBreastVolume + rightBreastVolume;
+    double leftBreastVolume = insights['leftBreastVolume'] ?? 0.0;
+    double rightBreastVolume = insights['rightBreastVolume'] ?? 0.0;
+    double totalVolume = leftBreastVolume + rightBreastVolume;
 
-  return Card(
-    child: Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Breast Milk Distribution',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 16),
-          SizedBox(
-            height: 200,
-            child: PieChart(
-              PieChartData(
-                sectionsSpace: 0,
-                centerSpaceRadius: 40,
-                sections: [
-                  PieChartSectionData(
-                    color: Colors.blue,
-                    value: leftBreastVolume,
-                    title: '${(leftBreastVolume / totalVolume * 100).toStringAsFixed(1)}%',
-                    radius: 65,
-                    titleStyle: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Breast Milk Distribution',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              height: 200,
+              child: PieChart(
+                PieChartData(
+                  sectionsSpace: 0,
+                  centerSpaceRadius: 40,
+                  sections: [
+                    PieChartSectionData(
+                      color: Colors.blue,
+                      value: leftBreastVolume,
+                      title:
+                          '${(leftBreastVolume / totalVolume * 100).toStringAsFixed(1)}%',
+                      radius: 65,
+                      titleStyle: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
                     ),
-                  ),
-                  PieChartSectionData(
-                    color: Colors.green,
-                    value: rightBreastVolume,
-                    title: '${(rightBreastVolume / totalVolume * 100).toStringAsFixed(1)}%',
-                    radius: 65,
-                    titleStyle: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                    PieChartSectionData(
+                      color: Colors.green,
+                      value: rightBreastVolume,
+                      title:
+                          '${(rightBreastVolume / totalVolume * 100).toStringAsFixed(1)}%',
+                      radius: 65,
+                      titleStyle: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _buildLegendItem(Colors.blue, 'Left Breast'),
-              const SizedBox(width: 16),
-              _buildLegendItem(Colors.green, 'Right Breast'),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Left Breast: ${leftBreastVolume.toStringAsFixed(1)} ml',
-            style: const TextStyle(fontSize: 16),
-          ),
-          Text(
-            'Right Breast: ${rightBreastVolume.toStringAsFixed(1)} ml',
-            style: const TextStyle(fontSize: 16),
-          ),
-        ],
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _buildLegendItem(Colors.blue, 'Left Breast'),
+                const SizedBox(width: 16),
+                _buildLegendItem(Colors.green, 'Right Breast'),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Left Breast: ${leftBreastVolume.toStringAsFixed(1)} ml',
+              style: const TextStyle(fontSize: 16),
+            ),
+            Text(
+              'Right Breast: ${rightBreastVolume.toStringAsFixed(1)} ml',
+              style: const TextStyle(fontSize: 16),
+            ),
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
-Widget _buildLegendItem(Color color, String label) {
-  return Row(
-    children: [
-      Container(
-        width: 16,
-        height: 16,
-        color: color,
-      ),
-      const SizedBox(width: 4),
-      Text(label),
-    ],
-  );
-}
+  Widget _buildLegendItem(Color color, String label) {
+    return Row(
+      children: [
+        Container(
+          width: 16,
+          height: 16,
+          color: color,
+        ),
+        const SizedBox(width: 4),
+        Text(label),
+      ],
+    );
+  }
 
   Widget _buildPumpingVolumeChart(
       Map<String, dynamic> insights, TimePeriod selectedTimePeriod) {
@@ -542,8 +548,10 @@ Widget _buildLegendItem(Color color, String label) {
         List<Map<String, dynamic>> dayPumpings = pumpingsByDay[dateKey] ?? [];
 
         if (dayPumpings.isNotEmpty) {
-          double totalVolume = dayPumpings.fold(0.0,
-              (sum, pumping) => sum + ((pumping['quantity'] as num?)?.toDouble() ?? 0.0));
+          double totalVolume = dayPumpings.fold(
+              0.0,
+              (sum, pumping) =>
+                  sum + ((pumping['quantity'] as num?)?.toDouble() ?? 0.0));
           double avgVolume = totalVolume / dayPumpings.length;
           volumeSpots.add(FlSpot(dayIndex.toDouble(), avgVolume));
           maxVolume = max(maxVolume, avgVolume);
@@ -702,14 +710,15 @@ Widget _buildLegendItem(Color color, String label) {
   }
 
   Widget _buildPumpingRecommendations(Map<String, dynamic> insights) {
-  return EnhancedPumpingRecommendations(
-    babyAgeInMonths: widget.babyAgeInMonths,
-    averageVolumePerSession: insights['averageVolume'] ?? 0.0,
-    pumpingFrequencyPerDay: insights['totalPumpings'] ?? 0,
-  );
-}
+    return EnhancedPumpingRecommendations(
+      babyAgeInMonths: widget.babyAgeInMonths,
+      averageVolumePerSession: insights['averageVolume'] ?? 0.0,
+      pumpingFrequencyPerDay: insights['totalPumpings'] ?? 0,
+    );
+  }
 
-  Widget _buildRecommendationItem({required IconData icon, required String text}) {
+  Widget _buildRecommendationItem(
+      {required IconData icon, required String text}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
       child: Row(

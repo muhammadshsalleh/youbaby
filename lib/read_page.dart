@@ -10,8 +10,6 @@ import 'package:photo_view/photo_view.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-
-
 ////////// DO NOT DELETE THE COMMENTS LINE
 // uncomment this line to show video but only work for PC (AKA WEB)
 
@@ -20,10 +18,10 @@ class ReadPage extends StatefulWidget {
   final int userId;
 
   const ReadPage({
-    Key? key,
+    super.key,
     required this.articleId,
     required this.userId,
-  }) : super(key: key);
+  });
 
   @override
   _ReadPageState createState() => _ReadPageState();
@@ -56,47 +54,44 @@ class _ReadPageState extends State<ReadPage> {
     super.initState();
     _fetchArticle();
     _fetchComments();
-}
+  }
 
   Future<void> _fetchArticle() async {
-  setState(() {
-    _isLoading = true;
-    _error = null;
-  });
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
 
-  try {
-    final response = await Supabase.instance.client
-        .from('article2')
-        .select('''
+    try {
+      final response =
+          await Supabase.instance.client.from('article2').select('''
           *,
           userAdmin:author_id(
             name
           )
-        ''')
-        .eq('id', widget.articleId)
-        .single();
+        ''').eq('id', widget.articleId).single();
 
-    if (mounted) {
-      setState(() {
-        _article = Article.fromJson(response);
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _article = Article.fromJson(response);
+          _isLoading = false;
+        });
 
-      if (_article?.videoUrl != null && _article!.videoUrl.isNotEmpty) {
+        if (_article?.videoUrl != null && _article!.videoUrl.isNotEmpty) {
           _initializeYoutubePlayer(_article!.videoUrl);
         }
-    }
-  } catch (e) {
-    if (mounted) {
-      setState(() {
-        _error = e.toString();
-        _isLoading = false;
-      });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = e.toString();
+          _isLoading = false;
+        });
+      }
     }
   }
-}
 
- Future<void> _fetchComments() async {
+  Future<void> _fetchComments() async {
     try {
       // Fetch user comments
       final List<dynamic> userComments = await Supabase.instance.client
@@ -209,89 +204,90 @@ class _ReadPageState extends State<ReadPage> {
   }
 
   Future<void> _submitReport(Map<String, dynamic> comment) async {
-  if (_selectedReportReason == null) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Please select a reason for reporting')),
-    );
-    return;
-  }
-
-  if (_selectedReportReason == ReportReason.other &&
-      _otherReasonController.text.isEmpty) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Please specify the reason for reporting')),
-    );
-    return;
-  }
-
-  try {
-    // First, verify that the current user is not an admin
-    final adminCheck = await Supabase.instance.client
-        .from('userAdmin')
-        .select('id')
-        .eq('id', widget.userId)
-        .maybeSingle();
-
-    if (adminCheck != null) {
+    if (_selectedReportReason == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Admins cannot report comments'),
-          behavior: SnackBarBehavior.floating,
-        ),
+        const SnackBar(content: Text('Please select a reason for reporting')),
       );
       return;
     }
 
-    // Verify that the comment author exists in the users table (is not an admin)
-    final userCheck = await Supabase.instance.client
-        .from('users')
-        .select('id')
-        .eq('id', comment['author']['id'])
-        .maybeSingle();
-
-    if (userCheck == null) {
+    if (_selectedReportReason == ReportReason.other &&
+        _otherReasonController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Cannot report admin comments'),
-          behavior: SnackBarBehavior.floating,
-        ),
+            content: Text('Please specify the reason for reporting')),
       );
       return;
     }
 
-    String reportReason = _selectedReportReason == ReportReason.other
-        ? _otherReasonController.text
-        : getReportReasonText(_selectedReportReason!);
+    try {
+      // First, verify that the current user is not an admin
+      final adminCheck = await Supabase.instance.client
+          .from('userAdmin')
+          .select('id')
+          .eq('id', widget.userId)
+          .maybeSingle();
 
-    await Supabase.instance.client.from('reported_comments_article').insert({
-      'comment_id': comment['id'],
-      'user_id': comment['author']['id'],
-      'reporter_id': widget.userId,
-      'reason': reportReason,
-      'report_type': _selectedReportReason.toString().split('.').last,
-      'reported_at': DateTime.now().toIso8601String(),
-      'status': 'pending',
-      'comment_text': comment['response'],
-      'report_category' : 'Read page comment',
-    });
+      if (adminCheck != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Admins cannot report comments'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        return;
+      }
 
-    Navigator.pop(context);
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Comment reported successfully'),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Error reporting comment: $e'),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+      // Verify that the comment author exists in the users table (is not an admin)
+      final userCheck = await Supabase.instance.client
+          .from('users')
+          .select('id')
+          .eq('id', comment['author']['id'])
+          .maybeSingle();
+
+      if (userCheck == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Cannot report admin comments'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        return;
+      }
+
+      String reportReason = _selectedReportReason == ReportReason.other
+          ? _otherReasonController.text
+          : getReportReasonText(_selectedReportReason!);
+
+      await Supabase.instance.client.from('reported_comments_article').insert({
+        'comment_id': comment['id'],
+        'user_id': comment['author']['id'],
+        'reporter_id': widget.userId,
+        'reason': reportReason,
+        'report_type': _selectedReportReason.toString().split('.').last,
+        'reported_at': DateTime.now().toIso8601String(),
+        'status': 'pending',
+        'comment_text': comment['response'],
+        'report_category': 'Read page comment',
+      });
+
+      Navigator.pop(context);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Comment reported successfully'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error reporting comment: $e'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
-}
 
   @override
   void dispose() {
@@ -304,37 +300,38 @@ class _ReadPageState extends State<ReadPage> {
   }
 
   Widget _buildArticleContent() {
-     return LayoutBuilder(
-       builder: (context, constraints) {
-         double contentWidth = constraints.maxWidth > 1200 
-             ? 1000  // max width for very large screens
-             : constraints.maxWidth > 600 
-                 ? constraints.maxWidth * 0.8  // 80% width for medium screens
-                 : constraints.maxWidth * 0.95;  // 95% width for small screens
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        double contentWidth = constraints.maxWidth > 1200
+            ? 1000 // max width for very large screens
+            : constraints.maxWidth > 600
+                ? constraints.maxWidth * 0.8 // 80% width for medium screens
+                : constraints.maxWidth * 0.95; // 95% width for small screens
 
-         return SingleChildScrollView(
-           child: Center(
-             child: Container(
-               width: contentWidth,
-               padding: EdgeInsets.symmetric(
-                 horizontal: constraints.maxWidth > 600 ? 32.0 : 16.0,
-                 vertical: 24.0,
-               ),
-               child: Column(
-                 crossAxisAlignment: CrossAxisAlignment.start,
-                 children: [
+        return SingleChildScrollView(
+          child: Center(
+            child: Container(
+              width: contentWidth,
+              padding: EdgeInsets.symmetric(
+                horizontal: constraints.maxWidth > 600 ? 32.0 : 16.0,
+                vertical: 24.0,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   // Hero Image
                   if (_article!.images.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       child: _buildResponsiveImage(_article!.images[0]),
-                    ),                    
+                    ),
                   const SizedBox(height: 24),
 
                   // Category
                   if (_article!.category.isNotEmpty)
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 4),
                       decoration: BoxDecoration(
                         color: const Color(0xFFA91B60).withOpacity(0.1),
                         borderRadius: BorderRadius.circular(20),
@@ -368,7 +365,7 @@ class _ReadPageState extends State<ReadPage> {
 
                   const SizedBox(height: 24),
 
-                 // Main Image
+                  // Main Image
                   if (_article!.imageUrl.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 16),
@@ -389,7 +386,7 @@ class _ReadPageState extends State<ReadPage> {
                   // Subtitles
                   ..._buildSubtitleSections(constraints),
 
-                 // Video section
+                  // Video section
                   if (_article!.videoUrl.isNotEmpty) ...[
                     const SizedBox(height: 32.0),
                     Text(
@@ -401,7 +398,7 @@ class _ReadPageState extends State<ReadPage> {
                       ),
                     ),
                     const SizedBox(height: 16.0),
-                   _buildResponsiveVideoPlayer(constraints),
+                    _buildResponsiveVideoPlayer(constraints),
                   ],
 
                   const SizedBox(height: 24.0),
@@ -435,7 +432,8 @@ class _ReadPageState extends State<ReadPage> {
         hideControls: false,
         hideThumbnail: false,
         disableDragSeek: false,
-        useHybridComposition: true, // Important for proper fullscreen on Android
+        useHybridComposition:
+            true, // Important for proper fullscreen on Android
       ),
     );
     setState(() {
@@ -443,15 +441,15 @@ class _ReadPageState extends State<ReadPage> {
     });
   }
 
-   Widget _buildResponsiveVideoPlayer(BoxConstraints constraints) {
+  Widget _buildResponsiveVideoPlayer(BoxConstraints constraints) {
     if (!_isVideoReady || _controller == null) return Container();
 
     // Calculate dimensions while maintaining 16:9 aspect ratio
-    double videoWidth = constraints.maxWidth > 800 
-        ? 800  // max width for large screens
-        : constraints.maxWidth * 0.9;  // 90% width for smaller screens
-    
-    double videoHeight = videoWidth * 9 / 16;  // 16:9 aspect ratio
+    double videoWidth = constraints.maxWidth > 800
+        ? 800 // max width for large screens
+        : constraints.maxWidth * 0.9; // 90% width for smaller screens
+
+    double videoHeight = videoWidth * 9 / 16; // 16:9 aspect ratio
 
     return YoutubePlayerBuilder(
       onExitFullScreen: () {
@@ -536,184 +534,196 @@ class _ReadPageState extends State<ReadPage> {
   }
 
   Widget _buildReferencesSection() {
-  if (_article!.references.isEmpty) {
-    return const SizedBox.shrink();
-  }
+    if (_article!.references.isEmpty) {
+      return const SizedBox.shrink();
+    }
 
-  return Container(
-    margin: const EdgeInsets.only(bottom: 32.0),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        InkWell(
-          onTap: () => setState(() => _showReferences = !_showReferences),
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
-            decoration: BoxDecoration(
-              color: const Color(0xFFA91B60).withOpacity(0.1),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'References',
-                  style: GoogleFonts.merriweather(
-                    fontSize: 20.0,
-                    fontWeight: FontWeight.bold,
+    return Container(
+      margin: const EdgeInsets.only(bottom: 32.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          InkWell(
+            onTap: () => setState(() => _showReferences = !_showReferences),
+            child: Container(
+              padding:
+                  const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+              decoration: BoxDecoration(
+                color: const Color(0xFFA91B60).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'References',
+                    style: GoogleFonts.merriweather(
+                      fontSize: 20.0,
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xFFA91B60),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Icon(
+                    _showReferences ? Icons.expand_less : Icons.expand_more,
                     color: const Color(0xFFA91B60),
                   ),
-                ),
-                const SizedBox(width: 8),
-                Icon(
-                  _showReferences ? Icons.expand_less : Icons.expand_more,
-                  color: const Color(0xFFA91B60),
-                ),
-              ],
-            ),
-          ),
-        ),
-        if (_showReferences) ...[
-          const SizedBox(height: 16),
-          Card(
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: _article!.references.asMap().entries.map((entry) {
-                  final index = entry.key;
-                  final reference = entry.value;
-                  
-                  // Handle both string URLs and map references
-                  if (reference is String) {
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 12.0),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '[${index + 1}] ',
-                            style: GoogleFonts.lato(
-                              fontWeight: FontWeight.bold,
-                              color: const Color(0xFFA91B60),
-                            ),
-                          ),
-                          Expanded(
-                            child: InkWell(
-                              onTap: () async {
-                                final Uri uri = Uri.parse(reference);
-                                try {
-                                  if (await canLaunchUrl(uri)) {
-                                    await launchUrl(uri);
-                                  } else {
-                                    throw 'Could not launch $reference';
-                                  }
-                                } catch (e) {
-                                  if (mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text('Could not open URL: $e')),
-                                    );
-                                  }
-                                }
-                              },
-                              child: Text(
-                                reference,
-                                style: GoogleFonts.lato(
-                                  color: Colors.blue,
-                                  decoration: TextDecoration.underline,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  } else if (reference is Map<String, dynamic>) {
-                    // Handle the original map format
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 12.0),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '[${index + 1}] ',
-                            style: GoogleFonts.lato(
-                              fontWeight: FontWeight.bold,
-                              color: const Color(0xFFA91B60),
-                            ),
-                          ),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                if (reference['title'] != null)
-                                  Text(
-                                    reference['title'],
-                                    style: GoogleFonts.lato(fontWeight: FontWeight.bold),
-                                  ),
-                                if (reference['authors'] != null) ...[
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    reference['authors'],
-                                    style: GoogleFonts.lato(fontStyle: FontStyle.italic),
-                                  ),
-                                ],
-                                if (reference['source'] != null) ...[
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    reference['source'],
-                                    style: GoogleFonts.lato(color: Colors.grey[600]),
-                                  ),
-                                ],
-                                if (reference['url'] != null) ...[
-                                  const SizedBox(height: 4),
-                                  InkWell(
-                                    onTap: () async {
-                                      final Uri uri = Uri.parse(reference['url']);
-                                      try {
-                                        if (await canLaunchUrl(uri)) {
-                                          await launchUrl(uri);
-                                        } else {
-                                          throw 'Could not launch ${reference['url']}';
-                                        }
-                                      } catch (e) {
-                                        if (mounted) {
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(content: Text('Could not open URL: $e')),
-                                          );
-                                        }
-                                      }
-                                    },
-                                    child: Text(
-                                      reference['url'],
-                                      style: GoogleFonts.lato(
-                                        color: Colors.blue,
-                                        decoration: TextDecoration.underline,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-                  return const SizedBox.shrink(); // Return empty widget for unsupported types
-                }).toList(),
+                ],
               ),
             ),
           ),
+          if (_showReferences) ...[
+            const SizedBox(height: 16),
+            Card(
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: _article!.references.asMap().entries.map((entry) {
+                    final index = entry.key;
+                    final reference = entry.value;
+
+                    // Handle both string URLs and map references
+                    if (reference is String) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 12.0),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '[${index + 1}] ',
+                              style: GoogleFonts.lato(
+                                fontWeight: FontWeight.bold,
+                                color: const Color(0xFFA91B60),
+                              ),
+                            ),
+                            Expanded(
+                              child: InkWell(
+                                onTap: () async {
+                                  final Uri uri = Uri.parse(reference);
+                                  try {
+                                    if (await canLaunchUrl(uri)) {
+                                      await launchUrl(uri);
+                                    } else {
+                                      throw 'Could not launch $reference';
+                                    }
+                                  } catch (e) {
+                                    if (mounted) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                            content:
+                                                Text('Could not open URL: $e')),
+                                      );
+                                    }
+                                  }
+                                },
+                                child: Text(
+                                  reference,
+                                  style: GoogleFonts.lato(
+                                    color: Colors.blue,
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    } else if (reference is Map<String, dynamic>) {
+                      // Handle the original map format
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 12.0),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '[${index + 1}] ',
+                              style: GoogleFonts.lato(
+                                fontWeight: FontWeight.bold,
+                                color: const Color(0xFFA91B60),
+                              ),
+                            ),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  if (reference['title'] != null)
+                                    Text(
+                                      reference['title'],
+                                      style: GoogleFonts.lato(
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  if (reference['authors'] != null) ...[
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      reference['authors'],
+                                      style: GoogleFonts.lato(
+                                          fontStyle: FontStyle.italic),
+                                    ),
+                                  ],
+                                  if (reference['source'] != null) ...[
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      reference['source'],
+                                      style: GoogleFonts.lato(
+                                          color: Colors.grey[600]),
+                                    ),
+                                  ],
+                                  if (reference['url'] != null) ...[
+                                    const SizedBox(height: 4),
+                                    InkWell(
+                                      onTap: () async {
+                                        final Uri uri =
+                                            Uri.parse(reference['url']);
+                                        try {
+                                          if (await canLaunchUrl(uri)) {
+                                            await launchUrl(uri);
+                                          } else {
+                                            throw 'Could not launch ${reference['url']}';
+                                          }
+                                        } catch (e) {
+                                          if (mounted) {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              SnackBar(
+                                                  content: Text(
+                                                      'Could not open URL: $e')),
+                                            );
+                                          }
+                                        }
+                                      },
+                                      child: Text(
+                                        reference['url'],
+                                        style: GoogleFonts.lato(
+                                          color: Colors.blue,
+                                          decoration: TextDecoration.underline,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                    return const SizedBox
+                        .shrink(); // Return empty widget for unsupported types
+                  }).toList(),
+                ),
+              ),
+            ),
+          ],
         ],
-      ],
-    ),
-  );
-}
+      ),
+    );
+  }
 
   List<Widget> _buildSubtitleSections(BoxConstraints constraints) {
     return _article!.subtitles.map((subtitle) {
@@ -783,7 +793,9 @@ class _ReadPageState extends State<ReadPage> {
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: _showAllComments
                           ? _combinedComments.length
-                          : (_combinedComments.length > 3 ? 3 : _combinedComments.length),
+                          : (_combinedComments.length > 3
+                              ? 3
+                              : _combinedComments.length),
                       itemBuilder: (context, index) {
                         final comment = _combinedComments[index];
                         final bool isAdminComment = comment['isAdmin'];
@@ -803,26 +815,34 @@ class _ReadPageState extends State<ReadPage> {
                                 Row(
                                   children: [
                                     CircleAvatar(
-                                      backgroundColor: isAdminComment ? const Color(0xFFA91B60) : Colors.blue,
+                                      backgroundColor: isAdminComment
+                                          ? const Color(0xFFA91B60)
+                                          : Colors.blue,
                                       child: Text(
                                         authorName[0].toUpperCase(),
-                                        style: GoogleFonts.lato(color: Colors.white),
+                                        style: GoogleFonts.lato(
+                                            color: Colors.white),
                                       ),
                                     ),
                                     const SizedBox(width: 8),
                                     Expanded(
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Text(
                                             authorName,
                                             style: GoogleFonts.lato(
                                               fontWeight: FontWeight.bold,
-                                              color: isAdminComment ? const Color(0xFFA91B60) : Colors.black87,
+                                              color: isAdminComment
+                                                  ? const Color(0xFFA91B60)
+                                                  : Colors.black87,
                                             ),
                                           ),
                                           Text(
-                                            DateFormat('MMM d, yyyy').format(DateTime.parse(comment['created'])),
+                                            DateFormat('MMM d, yyyy').format(
+                                                DateTime.parse(
+                                                    comment['created'])),
                                             style: GoogleFonts.lato(
                                               color: Colors.grey,
                                               fontSize: 12.0,
@@ -833,10 +853,12 @@ class _ReadPageState extends State<ReadPage> {
                                     ),
                                     if (isAdminComment)
                                       Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8, vertical: 2),
                                         decoration: BoxDecoration(
                                           color: const Color(0xFFA91B60),
-                                          borderRadius: BorderRadius.circular(10),
+                                          borderRadius:
+                                              BorderRadius.circular(10),
                                         ),
                                         child: Text(
                                           'Admin',
@@ -861,7 +883,8 @@ class _ReadPageState extends State<ReadPage> {
                                             value: 'report',
                                             child: Row(
                                               children: [
-                                                Icon(Icons.flag, color: Colors.orange),
+                                                Icon(Icons.flag,
+                                                    color: Colors.orange),
                                                 SizedBox(width: 8),
                                                 Text('Report Comment'),
                                               ],
@@ -884,10 +907,12 @@ class _ReadPageState extends State<ReadPage> {
                     ),
                     if (_combinedComments.length > 3 && !_showAllComments)
                       TextButton(
-                        onPressed: () => setState(() => _showAllComments = true),
+                        onPressed: () =>
+                            setState(() => _showAllComments = true),
                         child: Text(
                           'View all comments',
-                          style: GoogleFonts.lato(color: const Color(0xFFA91B60)),
+                          style:
+                              GoogleFonts.lato(color: const Color(0xFFA91B60)),
                         ),
                       ),
                   ],
@@ -950,47 +975,47 @@ class _ReadPageState extends State<ReadPage> {
   }
 
   void _showReportDialog(Map<String, dynamic> comment) async {
-  // Check if the comment is from the current user
-  if (comment['author']['id'] == widget.userId) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('You cannot report your own comment'),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-    return;
-  }
+    // Check if the comment is from the current user
+    if (comment['author']['id'] == widget.userId) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('You cannot report your own comment'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
 
-  // Check if the current user is an admin
-  final adminCheck = await Supabase.instance.client
-      .from('userAdmin')
-      .select('id')
-      .eq('id', widget.userId)
-      .maybeSingle();
+    // Check if the current user is an admin
+    final adminCheck = await Supabase.instance.client
+        .from('userAdmin')
+        .select('id')
+        .eq('id', widget.userId)
+        .maybeSingle();
 
-  if (adminCheck != null) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Admins cannot report comments'),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-    return;
-  }
+    if (adminCheck != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Admins cannot report comments'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
 
-  // Check if the comment is from an admin
-  if (comment['isAdmin']) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Cannot report admin comments'),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-    return;
-  }
+    // Check if the comment is from an admin
+    if (comment['isAdmin']) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Cannot report admin comments'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
 
-  _selectedReportReason = null;
-  _otherReasonController.clear();
+    _selectedReportReason = null;
+    _otherReasonController.clear();
 
     showDialog(
       context: context,
@@ -1038,7 +1063,7 @@ class _ReadPageState extends State<ReadPage> {
                           });
                         },
                       );
-                    }).toList(),
+                    }),
                     if (_selectedReportReason == ReportReason.other)
                       Padding(
                         padding: const EdgeInsets.all(8.0),
@@ -1051,7 +1076,8 @@ class _ReadPageState extends State<ReadPage> {
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
-                              borderSide: const BorderSide(color: Color(0xFFA91B60)),
+                              borderSide:
+                                  const BorderSide(color: Color(0xFFA91B60)),
                             ),
                           ),
                           maxLines: 3,
@@ -1087,89 +1113,90 @@ class _ReadPageState extends State<ReadPage> {
     );
   }
 
-Widget _buildResponsiveImage(String imageUrl, {double? maxHeight}) {
-  void showImageDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor: Colors.transparent,
-          insetPadding: EdgeInsets.zero,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              Container(
-                width: double.infinity,
-                height: double.infinity,
-                color: Colors.black.withOpacity(0.9),
-                child: PhotoView(
-                  imageProvider: CachedNetworkImageProvider(imageUrl),
-                  minScale: PhotoViewComputedScale.contained,
-                  maxScale: PhotoViewComputedScale.covered * 2,
-                  backgroundDecoration: const BoxDecoration(
-                    color: Colors.transparent,
+  Widget _buildResponsiveImage(String imageUrl, {double? maxHeight}) {
+    void showImageDialog(BuildContext context) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return Dialog(
+            backgroundColor: Colors.transparent,
+            insetPadding: EdgeInsets.zero,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Container(
+                  width: double.infinity,
+                  height: double.infinity,
+                  color: Colors.black.withOpacity(0.9),
+                  child: PhotoView(
+                    imageProvider: CachedNetworkImageProvider(imageUrl),
+                    minScale: PhotoViewComputedScale.contained,
+                    maxScale: PhotoViewComputedScale.covered * 2,
+                    backgroundDecoration: const BoxDecoration(
+                      color: Colors.transparent,
+                    ),
                   ),
                 ),
-              ),
-              Positioned(
-                top: 20,
-                right: 20,
-                child: IconButton(
-                  icon: const Icon(Icons.close, color: Colors.white, size: 30),
-                  onPressed: () => Navigator.of(context).pop(),
+                Positioned(
+                  top: 20,
+                  right: 20,
+                  child: IconButton(
+                    icon:
+                        const Icon(Icons.close, color: Colors.white, size: 30),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
                 ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
+              ],
+            ),
+          );
+        },
+      );
+    }
 
-  return LayoutBuilder(
-    builder: (context, constraints) {
-      return Center(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxWidth: constraints.maxWidth * 1.4,
-            maxHeight: maxHeight ?? double.infinity,
-          ),
-          child: GestureDetector(
-            onTap: () => showImageDialog(context),
-            child: Hero(
-              tag: imageUrl,
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: CachedNetworkImage(
-                    imageUrl: imageUrl,
-                    fit: BoxFit.contain,
-                    placeholder: (context, url) => const Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                    errorWidget: (context, url, error) => const Center(
-                      child: Icon(Icons.error),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: constraints.maxWidth * 1.4,
+              maxHeight: maxHeight ?? double.infinity,
+            ),
+            child: GestureDetector(
+              onTap: () => showImageDialog(context),
+              child: Hero(
+                tag: imageUrl,
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: CachedNetworkImage(
+                      imageUrl: imageUrl,
+                      fit: BoxFit.contain,
+                      placeholder: (context, url) => const Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                      errorWidget: (context, url, error) => const Center(
+                        child: Icon(Icons.error),
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
           ),
-        ),
-      );
-    },
-  );
-}
+        );
+      },
+    );
+  }
 
   Widget _buildAuthorDateSection() {
     return Wrap(
@@ -1220,39 +1247,40 @@ Widget _buildResponsiveImage(String imageUrl, {double? maxHeight}) {
         builder: (context, orientation) {
           return Scaffold(
             backgroundColor: Colors.white,
-            appBar: orientation == Orientation.portrait 
-              ? AppBar(
-                  backgroundColor: const Color(0xFFA91B60),
-                  title: Text(
-                    'Read Article',
-                    style: GoogleFonts.merriweather(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
+            appBar: orientation == Orientation.portrait
+                ? AppBar(
+                    backgroundColor: const Color(0xFFA91B60),
+                    title: Text(
+                      'Read Article',
+                      style: GoogleFonts.merriweather(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  centerTitle: true,
-                  elevation: 0,
-                )
-              : null, // Hide AppBar in landscape mode when video is fullscreen
-            body: _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : _error != null
-                ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.error_outline, color: Colors.red, size: 48),
-                        const SizedBox(height: 16),
-                        Text('Error: $_error'),
-                        const SizedBox(height: 16),
-                        ElevatedButton(
-                          onPressed: _fetchArticle,
-                          child: const Text('Retry'),
-                        ),
-                      ],
-                    ),
+                    centerTitle: true,
+                    elevation: 0,
                   )
-                : _buildArticleContent(),
+                : null, // Hide AppBar in landscape mode when video is fullscreen
+            body: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _error != null
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.error_outline,
+                                color: Colors.red, size: 48),
+                            const SizedBox(height: 16),
+                            Text('Error: $_error'),
+                            const SizedBox(height: 16),
+                            ElevatedButton(
+                              onPressed: _fetchArticle,
+                              child: const Text('Retry'),
+                            ),
+                          ],
+                        ),
+                      )
+                    : _buildArticleContent(),
           );
         },
       ),
@@ -1322,7 +1350,9 @@ class Article {
       detail: json['detail'] ?? '',
       category: json['category'] ?? '',
       videoUrl: json['video_url'] ?? '',
-      subtitles: parseReferences(json['subtitles']).map((e) => e as Map<String, dynamic>).toList(),
+      subtitles: parseReferences(json['subtitles'])
+          .map((e) => e as Map<String, dynamic>)
+          .toList(),
       images: parseImages(json['images']),
       imageUrl: json['images'] ?? '',
       createdAt: DateTime.parse(json['created_at']),

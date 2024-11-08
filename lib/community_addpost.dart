@@ -84,36 +84,38 @@ class _CommunityAddPostPageState extends State<CommunityAddPostPage> {
     });
 
     try {
-      final response =
-          await Supabase.instance.client.from('community_posts').insert({
-        'user_Id': widget.userID,
-        'title': _titleController.text,
-        'content': _contentController.text,
-        'created_at': DateTime.now().toIso8601String(),
-        'image_url': _imageUrl,
-      }) .select()
-        .single(); // Fetches the inserted row
+      final response = await Supabase.instance.client
+          .from('community_posts')
+          .insert({
+            'user_Id': widget.userID,
+            'title': _titleController.text,
+            'content': _contentController.text,
+            'created_at': DateTime.now().toIso8601String(),
+            'image_url': _imageUrl,
+          })
+          .select()
+          .single(); // Fetches the inserted row
 
-     // Check if the response is empty or null
-    if (response == null || response.isEmpty) {
-      throw Exception('Failed to add post, no data returned.');
+      // Check if the response is empty or null
+      if (response.isEmpty) {
+        throw Exception('Failed to add post, no data returned.');
+      }
+
+      // If the post was successfully added, show a success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Post added successfully!')),
+      );
+      Navigator.pop(context); // Navigate back after successful submission
+    } catch (error) {
+      setState(() {
+        _errorMessage = 'Failed to add post: $error';
+      });
+    } finally {
+      setState(() {
+        _isSubmitting = false;
+      });
     }
-
-    // If the post was successfully added, show a success message
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Post added successfully!')),
-    );
-    Navigator.pop(context); // Navigate back after successful submission
-  } catch (error) {
-    setState(() {
-      _errorMessage = 'Failed to add post: $error';
-    });
-  } finally {
-    setState(() {
-      _isSubmitting = false;
-    });
   }
-}
 
   void _showImageSourceDialog() {
     showDialog(
@@ -233,7 +235,7 @@ class _CommunityAddPostPageState extends State<CommunityAddPostPage> {
                 onPressed: (_isSubmitting || _isUploading) ? null : _submitPost,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFA91B60),
-                  foregroundColor: Colors.white, 
+                  foregroundColor: Colors.white,
                 ),
                 child: _isSubmitting
                     ? const CircularProgressIndicator()

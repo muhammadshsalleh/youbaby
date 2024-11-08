@@ -13,12 +13,12 @@ class AmountInputPage extends StatefulWidget {
   final DateTime startTime;
 
   const AmountInputPage({
-    Key? key,
+    super.key,
     required this.leftDuration,
     required this.rightDuration,
     required this.userId,
     required this.startTime,
-  }) : super(key: key);
+  });
 
   @override
   _AmountInputPageState createState() => _AmountInputPageState();
@@ -76,19 +76,20 @@ class _AmountInputPageState extends State<AmountInputPage> {
                 _buildUnitToggle(),
                 SizedBox(height: 20),
                 if (widget.leftDuration > 0)
-                  _buildAmountInput('Left', leftAmount, leftController, (value) {
+                  _buildAmountInput('Left', leftAmount, leftController,
+                      (value) {
                     setState(() => leftAmount = value);
                   }),
                 if (widget.leftDuration > 0) SizedBox(height: 20),
                 if (widget.rightDuration > 0)
-                  _buildAmountInput('Right', rightAmount, rightController, (value) {
+                  _buildAmountInput('Right', rightAmount, rightController,
+                      (value) {
                     setState(() => rightAmount = value);
                   }),
                 if (widget.rightDuration > 0) SizedBox(height: 20),
                 _buildTotalAmount(),
                 SizedBox(height: 40),
                 ElevatedButton(
-                  child: Text('Save Session'),
                   onPressed: _savePumpingSession,
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.white,
@@ -97,6 +98,7 @@ class _AmountInputPageState extends State<AmountInputPage> {
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30)),
                   ),
+                  child: Text('Save Session'),
                 ),
               ],
             ),
@@ -140,16 +142,6 @@ class _AmountInputPageState extends State<AmountInputPage> {
       children: [
         Text('Unit: ', style: TextStyle(fontSize: 16)),
         ToggleButtons(
-          children: [
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Text('ml', style: TextStyle(fontSize: 16)),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Text('oz', style: TextStyle(fontSize: 16)),
-            ),
-          ],
           isSelected: [isML, !isML],
           onPressed: (int index) {
             setState(() {
@@ -162,6 +154,16 @@ class _AmountInputPageState extends State<AmountInputPage> {
           fillColor: Colors.pink[300],
           borderColor: Colors.pink[300],
           selectedBorderColor: Colors.pink[300],
+          children: [
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: Text('ml', style: TextStyle(fontSize: 16)),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: Text('oz', style: TextStyle(fontSize: 16)),
+            ),
+          ],
         ),
       ],
     );
@@ -262,7 +264,9 @@ class _AmountInputPageState extends State<AmountInputPage> {
       children: [
         Text(label, style: TextStyle(fontSize: 12)),
         Text(
-          '${isML ? amount.toStringAsFixed(0) : (amount / 29.5735).toStringAsFixed(1)}',
+          isML
+              ? amount.toStringAsFixed(0)
+              : (amount / 29.5735).toStringAsFixed(1),
           style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
         ),
         Text(isML ? 'ml' : 'oz', style: TextStyle(fontSize: 12)),

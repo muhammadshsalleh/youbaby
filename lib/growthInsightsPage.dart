@@ -4,9 +4,9 @@ import 'package:fl_chart/fl_chart.dart';
 
 class GrowthInsightsPage extends StatefulWidget {
   final int userId;
-  
+
   const GrowthInsightsPage({
-    super.key, 
+    super.key,
     required this.userId,
   });
 
@@ -51,7 +51,8 @@ class _GrowthInsightsPageState extends State<GrowthInsightsPage> {
       //   8.7, 9.1, 9.4, 9.7, 10.0, 10.2, // 6-11 months upper bound
       // ],
     },
-    'female': { /// female data need to checked
+    'female': {
+      /// female data need to checked
       'height': [
         49.1, 53.7, 57.1, 59.8, 62.1, 64.0, // 0-5 months
         65.7, 67.3, 68.7, 70.1, 71.5, 72.8, // 6-11 months
@@ -93,15 +94,13 @@ class _GrowthInsightsPageState extends State<GrowthInsightsPage> {
           .select()
           .eq('id', widget.userId)
           .single();
-      
-      if (userResponse != null) {
-        setState(() {
-          userData = userResponse;
-          babyName = userResponse['babyName'];
-          babyGender = userResponse['babyGender']?.toLowerCase();
-          babyBirthday = DateTime.parse(userResponse['babyBirthday']);
-        });
-      }
+
+      setState(() {
+        userData = userResponse;
+        babyName = userResponse['babyName'];
+        babyGender = userResponse['babyGender']?.toLowerCase();
+        babyBirthday = DateTime.parse(userResponse['babyBirthday']);
+      });
 
       // Then fetch growth data
       final growthResponse = await supabase
@@ -111,10 +110,11 @@ class _GrowthInsightsPageState extends State<GrowthInsightsPage> {
           .order('created_at', ascending: true);
 
       // Process growth data to include age in months
-      final processedGrowthData = List<Map<String, dynamic>>.from(growthResponse)
-          .map((entry) {
+      final processedGrowthData =
+          List<Map<String, dynamic>>.from(growthResponse).map((entry) {
         final measurementDate = DateTime.parse(entry['created_at']);
-        final ageInMonths = _calculateAgeInMonths(babyBirthday!, measurementDate);
+        final ageInMonths =
+            _calculateAgeInMonths(babyBirthday!, measurementDate);
         return {
           ...entry,
           'ageInMonths': ageInMonths,
@@ -128,19 +128,19 @@ class _GrowthInsightsPageState extends State<GrowthInsightsPage> {
     } catch (e) {
       debugPrint('Error loading data: $e');
       setState(() => isLoading = false);
-    } 
+    }
   }
 
   int _calculateAgeInMonths(DateTime birthDate, DateTime currentDate) {
     int months = (currentDate.year - birthDate.year) * 12 +
         currentDate.month -
         birthDate.month;
-    
+
     // Adjust for day of month
     if (currentDate.day < birthDate.day) {
       months--;
     }
-    
+
     return months;
   }
 
@@ -196,7 +196,7 @@ class _GrowthInsightsPageState extends State<GrowthInsightsPage> {
 
   Widget _buildBabyInfo() {
     final age = _calculateAgeInMonths(babyBirthday!, DateTime.now());
-    
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -230,268 +230,276 @@ class _GrowthInsightsPageState extends State<GrowthInsightsPage> {
   }
 
   Widget _buildHeightChart() {
-  if (growthData.isEmpty || babyGender == null || 
-      !whoStandards.containsKey(babyGender) ||
-      whoStandards[babyGender]?['height'] == null) {
-    return const Card(
+    if (growthData.isEmpty ||
+        babyGender == null ||
+        !whoStandards.containsKey(babyGender) ||
+        whoStandards[babyGender]?['height'] == null) {
+      return const Card(
+        child: Padding(
+          padding: EdgeInsets.all(16),
+          child: Text('No height data available yet.'),
+        ),
+      );
+    }
+
+    final standards = whoStandards[babyGender]!;
+    final heightData = standards['height'] ?? [];
+    final heightP3Data = standards['heightP3'] ?? [];
+    final heightP97Data = standards['heightP97'] ?? [];
+
+    return Card(
       child: Padding(
-        padding: EdgeInsets.all(16),
-        child: Text('No height data available yet.'),
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Height Growth',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              height: 300,
+              child: LineChart(
+                LineChartData(
+                  gridData: FlGridData(show: true),
+                  titlesData: FlTitlesData(
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        getTitlesWidget: (value, meta) {
+                          return Text('${value.toInt()} mo');
+                        },
+                        reservedSize: 30,
+                      ),
+                    ),
+                    leftTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        getTitlesWidget: (value, meta) {
+                          return Text('${value.toInt()} cm');
+                        },
+                        reservedSize: 40,
+                      ),
+                    ),
+                  ),
+                  borderData: FlBorderData(show: true),
+                  lineBarsData: [
+                    // Actual height data
+                    LineChartBarData(
+                      spots: List.generate(growthData.length, (index) {
+                        return FlSpot(
+                          growthData[index]['ageInMonths'].toDouble(),
+                          growthData[index]['height'].toDouble(),
+                        );
+                      }),
+                      isCurved: true,
+                      color: Colors.blue,
+                      dotData: FlDotData(show: true),
+                    ),
+                    // WHO median line
+                    if (heightData.isNotEmpty)
+                      LineChartBarData(
+                        spots: List.generate(
+                          heightData.length,
+                          (index) => FlSpot(
+                            index.toDouble(),
+                            heightData[index],
+                          ),
+                        ),
+                        isCurved: true,
+                        color: Colors.green,
+                        dotData: FlDotData(show: false),
+                        dashArray: [5, 5],
+                      ),
+                    // WHO P3 line
+                    if (heightP3Data.isNotEmpty)
+                      LineChartBarData(
+                        spots: List.generate(
+                          heightP3Data.length,
+                          (index) => FlSpot(
+                            index.toDouble(),
+                            heightP3Data[index],
+                          ),
+                        ),
+                        isCurved: true,
+                        color: Colors.orange,
+                        dotData: FlDotData(show: false),
+                        dashArray: [5, 5],
+                      ),
+                    // WHO P97 line
+                    if (heightP97Data.isNotEmpty)
+                      LineChartBarData(
+                        spots: List.generate(
+                          heightP97Data.length,
+                          (index) => FlSpot(
+                            index.toDouble(),
+                            heightP97Data[index],
+                          ),
+                        ),
+                        isCurved: true,
+                        color: Colors.orange,
+                        dotData: FlDotData(show: false),
+                        dashArray: [5, 5],
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            // Legend
+            Wrap(
+              spacing: 16,
+              children: [
+                _buildLegendItem('Your Baby', Colors.blue),
+                _buildLegendItem('WHO Median', Colors.green),
+                _buildLegendItem('WHO Range', Colors.orange),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
-
-  final standards = whoStandards[babyGender]!;
-  final heightData = standards['height'] ?? [];
-  final heightP3Data = standards['heightP3'] ?? [];
-  final heightP97Data = standards['heightP97'] ?? [];
-
-  return Card(
-    child: Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Height Growth',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 16),
-          SizedBox(
-            height: 300,
-            child: LineChart(
-              LineChartData(
-                gridData: FlGridData(show: true),
-                titlesData: FlTitlesData(
-                  bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      getTitlesWidget: (value, meta) {
-                        return Text('${value.toInt()} mo');
-                      },
-                      reservedSize: 30,
-                    ),
-                  ),
-                  leftTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      getTitlesWidget: (value, meta) {
-                        return Text('${value.toInt()} cm');
-                      },
-                      reservedSize: 40,
-                    ),
-                  ),
-                ),
-                borderData: FlBorderData(show: true),
-                lineBarsData: [
-                  // Actual height data
-                  LineChartBarData(
-                    spots: List.generate(growthData.length, (index) {
-                      return FlSpot(
-                        growthData[index]['ageInMonths'].toDouble(),
-                        growthData[index]['height'].toDouble(),
-                      );
-                    }),
-                    isCurved: true,
-                    color: Colors.blue,
-                    dotData: FlDotData(show: true),
-                  ),
-                  // WHO median line
-                  if (heightData.isNotEmpty) LineChartBarData(
-                    spots: List.generate(
-                      heightData.length,
-                      (index) => FlSpot(
-                        index.toDouble(),
-                        heightData[index],
-                      ),
-                    ),
-                    isCurved: true,
-                    color: Colors.green,
-                    dotData: FlDotData(show: false),
-                    dashArray: [5, 5],
-                  ),
-                  // WHO P3 line
-                  if (heightP3Data.isNotEmpty) LineChartBarData(
-                    spots: List.generate(
-                      heightP3Data.length,
-                      (index) => FlSpot(
-                        index.toDouble(),
-                        heightP3Data[index],
-                      ),
-                    ),
-                    isCurved: true,
-                    color: Colors.orange,
-                    dotData: FlDotData(show: false),
-                    dashArray: [5, 5],
-                  ),
-                  // WHO P97 line
-                  if (heightP97Data.isNotEmpty) LineChartBarData(
-                    spots: List.generate(
-                      heightP97Data.length,
-                      (index) => FlSpot(
-                        index.toDouble(),
-                        heightP97Data[index],
-                      ),
-                    ),
-                    isCurved: true,
-                    color: Colors.orange,
-                    dotData: FlDotData(show: false),
-                    dashArray: [5, 5],
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          // Legend
-          Wrap(
-            spacing: 16,
-            children: [
-              _buildLegendItem('Your Baby', Colors.blue),
-              _buildLegendItem('WHO Median', Colors.green),
-              _buildLegendItem('WHO Range', Colors.orange),
-            ],
-          ),
-        ],
-      ),
-    ),
-  );
-}
 
   Widget _buildWeightChart() {
-  if (growthData.isEmpty || babyGender == null || 
-      !whoStandards.containsKey(babyGender) ||
-      whoStandards[babyGender]?['weight'] == null) {
-    return const Card(
+    if (growthData.isEmpty ||
+        babyGender == null ||
+        !whoStandards.containsKey(babyGender) ||
+        whoStandards[babyGender]?['weight'] == null) {
+      return const Card(
+        child: Padding(
+          padding: EdgeInsets.all(16),
+          child: Text('No weight data available yet.'),
+        ),
+      );
+    }
+
+    final standards = whoStandards[babyGender]!;
+    final weightData = standards['weight'] ?? [];
+    final weightP3Data = standards['weightP3'] ?? [];
+    final weightP97Data = standards['weightP97'] ?? [];
+
+    return Card(
       child: Padding(
-        padding: EdgeInsets.all(16),
-        child: Text('No weight data available yet.'),
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Weight Growth',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              height: 300,
+              child: LineChart(
+                LineChartData(
+                  gridData: FlGridData(show: true),
+                  titlesData: FlTitlesData(
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        getTitlesWidget: (value, meta) {
+                          return Text('${value.toInt()} mo');
+                        },
+                        reservedSize: 30,
+                      ),
+                    ),
+                    leftTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        getTitlesWidget: (value, meta) {
+                          return Text('${value.toInt()} kg');
+                        },
+                        reservedSize: 40,
+                      ),
+                    ),
+                  ),
+                  borderData: FlBorderData(show: true),
+                  lineBarsData: [
+                    // Actual weight data
+                    LineChartBarData(
+                      spots: List.generate(growthData.length, (index) {
+                        return FlSpot(
+                          growthData[index]['ageInMonths'].toDouble(),
+                          growthData[index]['weight'].toDouble(),
+                        );
+                      }),
+                      isCurved: true,
+                      color: Colors.blue,
+                      dotData: FlDotData(show: true),
+                    ),
+                    // WHO median line
+                    if (weightData.isNotEmpty)
+                      LineChartBarData(
+                        spots: List.generate(
+                          weightData.length,
+                          (index) => FlSpot(
+                            index.toDouble(),
+                            weightData[index],
+                          ),
+                        ),
+                        isCurved: true,
+                        color: Colors.green,
+                        dotData: FlDotData(show: false),
+                        dashArray: [5, 5],
+                      ),
+                    // WHO P3 line
+                    if (weightP3Data.isNotEmpty)
+                      LineChartBarData(
+                        spots: List.generate(
+                          weightP3Data.length,
+                          (index) => FlSpot(
+                            index.toDouble(),
+                            weightP3Data[index],
+                          ),
+                        ),
+                        isCurved: true,
+                        color: Colors.orange,
+                        dotData: FlDotData(show: false),
+                        dashArray: [5, 5],
+                      ),
+                    // WHO P97 line
+                    if (weightP97Data.isNotEmpty)
+                      LineChartBarData(
+                        spots: List.generate(
+                          weightP97Data.length,
+                          (index) => FlSpot(
+                            index.toDouble(),
+                            weightP97Data[index],
+                          ),
+                        ),
+                        isCurved: true,
+                        color: Colors.orange,
+                        dotData: FlDotData(show: false),
+                        dashArray: [5, 5],
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            // Legend
+            Wrap(
+              spacing: 16,
+              children: [
+                _buildLegendItem('Your Baby', Colors.blue),
+                _buildLegendItem('WHO Median', Colors.green),
+                _buildLegendItem('WHO Range', Colors.orange),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
-
-  final standards = whoStandards[babyGender]!;
-  final weightData = standards['weight'] ?? [];
-  final weightP3Data = standards['weightP3'] ?? [];
-  final weightP97Data = standards['weightP97'] ?? [];
-
-  return Card(
-    child: Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Weight Growth',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 16),
-          SizedBox(
-            height: 300,
-            child: LineChart(
-              LineChartData(
-                gridData: FlGridData(show: true),
-                titlesData: FlTitlesData(
-                  bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      getTitlesWidget: (value, meta) {
-                        return Text('${value.toInt()} mo');
-                      },
-                      reservedSize: 30,
-                    ),
-                  ),
-                  leftTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      getTitlesWidget: (value, meta) {
-                        return Text('${value.toInt()} kg');
-                      },
-                      reservedSize: 40,
-                    ),
-                  ),
-                ),
-                borderData: FlBorderData(show: true),
-                lineBarsData: [
-                  // Actual weight data
-                  LineChartBarData(
-                    spots: List.generate(growthData.length, (index) {
-                      return FlSpot(
-                        growthData[index]['ageInMonths'].toDouble(),
-                        growthData[index]['weight'].toDouble(),
-                      );
-                    }),
-                    isCurved: true,
-                    color: Colors.blue,
-                    dotData: FlDotData(show: true),
-                  ),
-                  // WHO median line
-                  if (weightData.isNotEmpty) LineChartBarData(
-                    spots: List.generate(
-                      weightData.length,
-                      (index) => FlSpot(
-                        index.toDouble(),
-                        weightData[index],
-                      ),
-                    ),
-                    isCurved: true,
-                    color: Colors.green,
-                    dotData: FlDotData(show: false),
-                    dashArray: [5, 5],
-                  ),
-                  // WHO P3 line
-                  if (weightP3Data.isNotEmpty) LineChartBarData(
-                    spots: List.generate(
-                      weightP3Data.length,
-                      (index) => FlSpot(
-                        index.toDouble(),
-                        weightP3Data[index],
-                      ),
-                    ),
-                    isCurved: true,
-                    color: Colors.orange,
-                    dotData: FlDotData(show: false),
-                    dashArray: [5, 5],
-                  ),
-                  // WHO P97 line
-                  if (weightP97Data.isNotEmpty) LineChartBarData(
-                    spots: List.generate(
-                      weightP97Data.length,
-                      (index) => FlSpot(
-                        index.toDouble(),
-                        weightP97Data[index],
-                      ),
-                    ),
-                    isCurved: true,
-                    color: Colors.orange,
-                    dotData: FlDotData(show: false),
-                    dashArray: [5, 5],
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          // Legend
-          Wrap(
-            spacing: 16,
-            children: [
-              _buildLegendItem('Your Baby', Colors.blue),
-              _buildLegendItem('WHO Median', Colors.green),
-              _buildLegendItem('WHO Range', Colors.orange),
-            ],
-          ),
-        ],
-      ),
-    ),
-  );
-}
 
   Widget _buildLegendItem(String label, Color color) {
     return Row(
@@ -517,21 +525,21 @@ class _GrowthInsightsPageState extends State<GrowthInsightsPage> {
 
     final totalHeightGain = latestEntry['height'] - firstEntry['height'];
     final totalWeightGain = latestEntry['weight'] - firstEntry['weight'];
-    
+
     // Safely get WHO standards for comparison
     double? whoHeight;
     double? whoWeight;
-    
+
     if (babyGender != null && ageInMonths <= 11) {
       final standards = whoStandards[babyGender];
       if (standards != null) {
         final heightData = standards['height'];
         final weightData = standards['weight'];
-        
+
         if (heightData != null && heightData.length > ageInMonths) {
           whoHeight = heightData[ageInMonths];
         }
-        
+
         if (weightData != null && weightData.length > ageInMonths) {
           whoWeight = weightData[ageInMonths];
         }
@@ -552,7 +560,8 @@ class _GrowthInsightsPageState extends State<GrowthInsightsPage> {
               ),
             ),
             const SizedBox(height: 16),
-            Text('Current Height: ${latestEntry['height'].toStringAsFixed(1)} cm'),
+            Text(
+                'Current Height: ${latestEntry['height'].toStringAsFixed(1)} cm'),
             if (whoHeight != null)
               Text('WHO Expected Height: ${whoHeight.toStringAsFixed(1)} cm')
             else if (ageInMonths > 11)
@@ -565,7 +574,8 @@ class _GrowthInsightsPageState extends State<GrowthInsightsPage> {
                 ),
               ),
             const SizedBox(height: 8),
-            Text('Current Weight: ${latestEntry['weight'].toStringAsFixed(1)} kg'),
+            Text(
+                'Current Weight: ${latestEntry['weight'].toStringAsFixed(1)} kg'),
             if (whoWeight != null)
               Text('WHO Expected Weight: ${whoWeight.toStringAsFixed(1)} kg')
             else if (ageInMonths > 11)
@@ -584,5 +594,5 @@ class _GrowthInsightsPageState extends State<GrowthInsightsPage> {
         ),
       ),
     );
-}
+  }
 }

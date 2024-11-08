@@ -3,16 +3,18 @@ import 'package:youbaby/settings_page.dart';
 
 // Sample placeholder pages for each settings option.
 class PrivacySecurityPage extends StatelessWidget {
+  const PrivacySecurityPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Privacy & Security Settings", 
-        style: TextStyle(
-            color: Color(0xFFEBE0D0),
-            fontSize: 24.0,
-            fontWeight: FontWeight.bold,
-          )),
+        title: Text("Privacy & Security Settings",
+            style: TextStyle(
+              color: Color(0xFFEBE0D0),
+              fontSize: 24.0,
+              fontWeight: FontWeight.bold,
+            )),
         backgroundColor: Color(0xFFA81B60),
       ),
       body: ListView(
@@ -44,7 +46,6 @@ class PrivacySecurityPage extends StatelessWidget {
             },
           ), //settingsTile
           Divider(),
-
         ],
       ),
     );

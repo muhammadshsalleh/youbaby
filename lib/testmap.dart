@@ -6,6 +6,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class LocationTestPage extends StatefulWidget {
+  const LocationTestPage({super.key});
+
   @override
   _LocationTestPageState createState() => _LocationTestPageState();
 }
@@ -83,8 +85,8 @@ class _LocationTestPageState extends State<LocationTestPage> {
         state = result['address']['state'] ?? 'Unknown';
         country = result['address']['country'] ?? 'Unknown';
         // county = result['address']['county'] ?? 'Unknown'; // Extract county
-      _locationMessage =
-          "City: $city, State: $state, Country: $country\nLatitude: $latitude, Longitude: $longitude";
+        _locationMessage =
+            "City: $city, State: $state, Country: $country\nLatitude: $latitude, Longitude: $longitude";
       });
     } else {
       throw Exception('Failed to fetch address');

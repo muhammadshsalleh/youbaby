@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'diaper_entry.dart';  
-import 'diaper_tracker_page.dart';  
+import 'diaper_entry.dart';
+import 'diaper_tracker_page.dart';
 import 'dart:math' show max, pi;
 
 class DiaperInsightsPage extends StatefulWidget {
@@ -11,10 +11,10 @@ class DiaperInsightsPage extends StatefulWidget {
   final VoidCallback navigateToNewEntry;
 
   const DiaperInsightsPage({
-    super.key, 
-    required this.userID,  
+    super.key,
+    required this.userID,
     required this.navigateToNewEntry,
-    }); 
+  });
 
   @override
   _DiaperInsightsPageState createState() => _DiaperInsightsPageState();
@@ -133,7 +133,7 @@ class _DiaperInsightsPageState extends State<DiaperInsightsPage> {
           .eq('userID', widget.userID)
           .order('date_time', ascending: true);
 
-      if (response == null || (response as List).isEmpty) {
+      if ((response as List).isEmpty) {
         setState(() {
           isLoading = false;
           hasError = true;
@@ -279,6 +279,7 @@ class _DiaperInsightsPageState extends State<DiaperInsightsPage> {
       ),
     );
   }
+
   // time range button
   Widget _timeRangeButton(String label, String value) {
     final isSelected = selectedTimeRange == value;
@@ -422,7 +423,7 @@ class _DiaperInsightsPageState extends State<DiaperInsightsPage> {
     );
   }
 
- Widget _buildColorDistributionPieChart(
+  Widget _buildColorDistributionPieChart(
     Map<String, int> distribution,
     List<String> predefinedLabels,
     List<Color> predefinedColors,
@@ -436,7 +437,8 @@ class _DiaperInsightsPageState extends State<DiaperInsightsPage> {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0), // Add horizontal padding
+          padding: const EdgeInsets.symmetric(
+              horizontal: 16.0), // Add horizontal padding
           child: AspectRatio(
             aspectRatio: 1,
             child: PieChart(
@@ -488,9 +490,10 @@ class _DiaperInsightsPageState extends State<DiaperInsightsPage> {
 
     final percentage = totalValue > 0 ? (value / totalValue * 100).round() : 0;
     final textColor = (color == Colors.white) ? Colors.black : Colors.white;
-    
+
     // Enhanced badge positioning calculation
-    final offset = _calculateBadgeOffset(index, predefinedLabels.length, value, totalValue);
+    final offset = _calculateBadgeOffset(
+        index, predefinedLabels.length, value, totalValue);
 
     return PieChartSectionData(
       color: color,
@@ -536,39 +539,39 @@ class _DiaperInsightsPageState extends State<DiaperInsightsPage> {
   }
 
   // Enhanced badge offset calculation
-  double _calculateBadgeOffset(int index, int totalSections, double value, double totalValue) {
-      final angle = (index / totalSections) * 2 * pi;
-      final percentage = (value / totalValue) * 100;
-      
-      // Base offset calculations with adjustments for small sections
-      double offset;
-      if (angle <= pi / 2) {
-          offset = percentage < 10 ? 1.5 : 1.3; // Right side
-      } else if (angle <= pi) {
-          offset = percentage < 10 ? 1.6 : 1.4; // Bottom
-      } else if (angle <= 3 * pi / 2) {
-          offset = percentage < 10 ? 1.4 : 1.2; // Left side - Increased offset
-      } else {
-          offset = percentage < 10 ? 1.3 : 1.1; // Top
-      }
-      
-      // Additional adjustment for Redmi 9C screen size
-      if (angle > pi && angle <= 3 * pi / 2) {
-          offset += 0.2; // Extra offset for left side to prevent cutoff
-      }
-      
-      return offset;
+  double _calculateBadgeOffset(
+      int index, int totalSections, double value, double totalValue) {
+    final angle = (index / totalSections) * 2 * pi;
+    final percentage = (value / totalValue) * 100;
+
+    // Base offset calculations with adjustments for small sections
+    double offset;
+    if (angle <= pi / 2) {
+      offset = percentage < 10 ? 1.5 : 1.3; // Right side
+    } else if (angle <= pi) {
+      offset = percentage < 10 ? 1.6 : 1.4; // Bottom
+    } else if (angle <= 3 * pi / 2) {
+      offset = percentage < 10 ? 1.4 : 1.2; // Left side - Increased offset
+    } else {
+      offset = percentage < 10 ? 1.3 : 1.1; // Top
+    }
+
+    // Additional adjustment for Redmi 9C screen size
+    if (angle > pi && angle <= 3 * pi / 2) {
+      offset += 0.2; // Extra offset for left side to prevent cutoff
+    }
+
+    return offset;
   }
 
   // Helper method to get the most common color
-String getMostCommonColor(Map<String, int> distribution) {
-  if (distribution.isEmpty) return '';
-  return distribution.entries
-      .reduce((a, b) => a.value > b.value ? a : b)
-      .key;
-}
+  String getMostCommonColor(Map<String, int> distribution) {
+    if (distribution.isEmpty) return '';
+    return distribution.entries.reduce((a, b) => a.value > b.value ? a : b).key;
+  }
+
 // color insigths
-Widget _buildColorInsights(String colorRecommendation) {
+  Widget _buildColorInsights(String colorRecommendation) {
     return Card(
       color: const Color.fromARGB(255, 255, 228, 241),
       shape: RoundedRectangleBorder(
@@ -592,7 +595,7 @@ Widget _buildColorInsights(String colorRecommendation) {
                   child: Text(
                     'Tips: ${_getColorRecommendation(colorRecommendation)}',
                     style: const TextStyle(
-                      fontSize: 13, 
+                      fontSize: 13,
                       fontWeight: FontWeight.w300,
                       height: 1.5,
                       color: Colors.black87,
@@ -627,7 +630,6 @@ Widget _buildColorInsights(String colorRecommendation) {
         return 'No specific insights available.';
     }
   }
-
 
   Widget _buildTrendLineChart() {
     if (trendData.isEmpty || selectedTimeRange == 'today') {
@@ -830,7 +832,7 @@ Widget _buildColorInsights(String colorRecommendation) {
                       Duration(days: (totalDays - 1 - touchedSpot.x).toInt()));
                   final dateStr = DateFormat('dd/MM').format(date);
                   return LineTooltipItem(
-                    '${dateStr}\nTotal: ${touchedSpot.y.toInt()}',
+                    '$dateStr\nTotal: ${touchedSpot.y.toInt()}',
                     const TextStyle(
                       color: Colors.black87,
                       fontWeight: FontWeight.bold,
@@ -852,11 +854,9 @@ Widget _buildColorInsights(String colorRecommendation) {
     String xAxisLabel,
     String yAxisLabel, {
     String chartType = '',
-    List<String>? predefinedLabels,
-    List<Color>? predefinedColors,
   }) {
     if (data.isEmpty) {
-      return chartType == 'textureDistribution' 
+      return chartType == 'textureDistribution'
           ? (Center(child: Text('No $title data available')), '')
           : Center(child: Text('No $title data available'));
     }
@@ -889,7 +889,8 @@ Widget _buildColorInsights(String colorRecommendation) {
               toY: value.toDouble(),
               color: barColor,
               width: 16,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(4)),
             ),
           ],
         ),
@@ -933,8 +934,9 @@ Widget _buildColorInsights(String colorRecommendation) {
                   showTitles: true,
                   reservedSize: 44,
                   getTitlesWidget: (value, meta) {
-                    if (value < 0 || value >= labels.length)
+                    if (value < 0 || value >= labels.length) {
                       return const Text('');
+                    }
                     return SideTitleWidget(
                       axisSide: meta.axisSide,
                       child: Container(
@@ -984,7 +986,8 @@ Widget _buildColorInsights(String colorRecommendation) {
                 ),
               ),
               topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-              rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              rightTitles:
+                  AxisTitles(sideTitles: SideTitles(showTitles: false)),
             ),
             borderData: FlBorderData(
               show: true,
@@ -1001,7 +1004,7 @@ Widget _buildColorInsights(String colorRecommendation) {
     );
 
     // Return type depends on chartType
-    return chartType == 'textureDistribution' 
+    return chartType == 'textureDistribution'
         ? (chart, mostCommonValue)
         : chart;
   }
@@ -1030,7 +1033,8 @@ Widget _buildColorInsights(String colorRecommendation) {
     return Card(
       color: const Color.fromARGB(255, 255, 228, 241), // Set the card color
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8.0), // Optional: Add border radius for a softer look
+        borderRadius: BorderRadius.circular(
+            8.0), // Optional: Add border radius for a softer look
       ),
       elevation: 2, // Optional: Add elevation for shadow effect
       child: Padding(
@@ -1042,7 +1046,7 @@ Widget _buildColorInsights(String colorRecommendation) {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Icon(
-                 Icons.lightbulb,
+                  Icons.lightbulb,
                   color: Color.fromARGB(255, 247, 119, 180),
                 ),
                 const SizedBox(width: 8),
@@ -1066,7 +1070,6 @@ Widget _buildColorInsights(String colorRecommendation) {
       ),
     );
   }
-
 
   Widget _buildTimeDistributionChart() {
     if (timeOfDayDistribution.isEmpty) {
@@ -1103,7 +1106,7 @@ Widget _buildColorInsights(String colorRecommendation) {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-             _buildDistributionBarChart(
+            _buildDistributionBarChart(
               formattedTimeDistribution,
               'Time Distribution',
               'Time of Day',
@@ -1111,7 +1114,6 @@ Widget _buildColorInsights(String colorRecommendation) {
               chartType: 'timeDistribution',
             ),
             const SizedBox(height: 16),
-            
           ],
         ),
       ),
@@ -1119,9 +1121,10 @@ Widget _buildColorInsights(String colorRecommendation) {
   }
 
   // Helper method to get formatted time distribution
-Map<String, int> getFormattedTimeDistribution() {
-    final List<String> orderedTimeSlots = chartColors['timeDistribution']!.keys.toList();
-    
+  Map<String, int> getFormattedTimeDistribution() {
+    final List<String> orderedTimeSlots =
+        chartColors['timeDistribution']!.keys.toList();
+
     Map<String, int> formattedTimeDistribution =
         Map.fromEntries(orderedTimeSlots.map((slot) => MapEntry(slot, 0)));
 
@@ -1132,55 +1135,55 @@ Map<String, int> getFormattedTimeDistribution() {
     });
 
     return formattedTimeDistribution;
-}
+  }
 
   // time insights
   Widget _buildTimeInsights(Map<String, int> timeDistribution) {
-  String peakTime = timeDistribution.entries
-      .reduce((a, b) => a.value > b.value ? a : b)
-      .key;
-  String timeAdvice = _getTimeAdvice(peakTime);
+    String peakTime = timeDistribution.entries
+        .reduce((a, b) => a.value > b.value ? a : b)
+        .key;
+    String timeAdvice = _getTimeAdvice(peakTime);
 
-  return Card(
-    color: const Color.fromARGB(255, 255, 228, 241),
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(8.0),
-    ),
-    elevation: 2,
-    child: Padding(
-      padding: const EdgeInsets.all(16.0), // Apply uniform padding
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(
-                Icons.lightbulb,
-                // color: Colors.amber,
-                color: Color.fromARGB(255, 247, 119, 180),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  'Tips: $timeAdvice',
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w300,
-                    height: 1.5,
-                    color: Colors.black87,
-                    fontFamily: 'Roboto',
-                  ),
-                  textAlign: TextAlign.justify,
-                ),
-              ),
-            ],
-          ),
-        ],
+    return Card(
+      color: const Color.fromARGB(255, 255, 228, 241),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8.0),
       ),
-    ),
-  );
-}
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0), // Apply uniform padding
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.lightbulb,
+                  // color: Colors.amber,
+                  color: Color.fromARGB(255, 247, 119, 180),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Tips: $timeAdvice',
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w300,
+                      height: 1.5,
+                      color: Colors.black87,
+                      fontFamily: 'Roboto',
+                    ),
+                    textAlign: TextAlign.justify,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   String _getTimeAdvice(String peakTime) {
     switch (peakTime) {
@@ -1341,13 +1344,13 @@ Map<String, int> getFormattedTimeDistribution() {
 
     if (hasError) {
       return Center(
-        child: GestureDetector(  // Added child: here
-          onTap: widget.navigateToNewEntry,  // Added widget. here
+        child: GestureDetector(
+          // Added child: here
+          onTap: widget.navigateToNewEntry, // Added widget. here
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.add_circle_outline,
-                  size: 48, color: Colors.grey[400]),
+              Icon(Icons.add_circle_outline, size: 48, color: Colors.grey[400]),
               const SizedBox(height: 16),
               Text(
                 'No entries found',
@@ -1377,7 +1380,7 @@ Map<String, int> getFormattedTimeDistribution() {
             Expanded(
               child: Center(
                 child: GestureDetector(
-                  onTap: widget.navigateToNewEntry,  // Added widget. here
+                  onTap: widget.navigateToNewEntry, // Added widget. here
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -1439,9 +1442,8 @@ Map<String, int> getFormattedTimeDistribution() {
                       if (timeOfDayDistribution.isNotEmpty)
                         _buildTimeInsights(getFormattedTimeDistribution()),
                       const SizedBox(height: 24),
-                   
 
-                     // Color Distribution
+                      // Color Distribution
                       if (pooColorDistribution.isNotEmpty) ...[
                         Text(
                           'Color Distribution',
@@ -1465,7 +1467,8 @@ Map<String, int> getFormattedTimeDistribution() {
                         ),
                         const SizedBox(height: 8),
                         if (pooColorDistribution.isNotEmpty) ...[
-                          _buildColorInsights(getMostCommonColor(pooColorDistribution)),  
+                          _buildColorInsights(
+                              getMostCommonColor(pooColorDistribution)),
                         ]
                       ],
                       const SizedBox(height: 24),
@@ -1484,7 +1487,8 @@ Map<String, int> getFormattedTimeDistribution() {
                           child: Padding(
                             padding: const EdgeInsets.all(16),
                             child: () {
-                              final (chart, mostCommonTexture) = _buildDistributionBarChart(
+                              final (chart, mostCommonTexture) =
+                                  _buildDistributionBarChart(
                                 pooTextureDistribution,
                                 'Texture Distribution',
                                 'Texture',
@@ -1498,7 +1502,8 @@ Map<String, int> getFormattedTimeDistribution() {
                         const SizedBox(height: 8),
                         if (pooTextureDistribution.isNotEmpty) ...[
                           _buildTextureInsights(() {
-                            final (_, mostCommonTexture) = _buildDistributionBarChart(
+                            final (_, mostCommonTexture) =
+                                _buildDistributionBarChart(
                               pooTextureDistribution,
                               'Texture Distribution',
                               'Texture',

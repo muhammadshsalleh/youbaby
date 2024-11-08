@@ -63,7 +63,7 @@ class _BabyAlbumPageState extends State<BabyAlbumPage> {
     ),
   ];
 
-  List<String> _activeFilters = [];
+  final List<String> _activeFilters = [];
 
   @override
   void initState() {
@@ -78,15 +78,6 @@ class _BabyAlbumPageState extends State<BabyAlbumPage> {
           .select()
           .eq('baby_id', widget.userID)
           .single();
-
-      if (albumResponse == null) {
-        setState(() {
-          _isLoading = false;
-          photos = [];
-          filteredPhotos = [];
-        });
-        return;
-      }
 
       setState(() {
         _albumId = albumResponse['id'] as String;
@@ -107,42 +98,40 @@ class _BabyAlbumPageState extends State<BabyAlbumPage> {
           .eq('album_id', _albumId as Object)
           .order('created_at', ascending: false);
 
-      if (photosResponse != null) {
-        final List<BabyPhoto> fetchedPhotos = [];
-        final Set<String> tags = {};
+      final List<BabyPhoto> fetchedPhotos = [];
+      final Set<String> tags = {};
 
-        for (var photoData in photosResponse) {
-          List<String> photoTags = [];
-          if (photoData['albums_photo_tags'] != null) {
-            for (var tagData in photoData['albums_photo_tags']) {
-              if (tagData['albums_tags'] != null) {
-                final tagName = tagData['albums_tags']['name'];
-                photoTags.add(tagName);
-                tags.add(tagName);
-              }
+      for (var photoData in photosResponse) {
+        List<String> photoTags = [];
+        if (photoData['albums_photo_tags'] != null) {
+          for (var tagData in photoData['albums_photo_tags']) {
+            if (tagData['albums_tags'] != null) {
+              final tagName = tagData['albums_tags']['name'];
+              photoTags.add(tagName);
+              tags.add(tagName);
             }
           }
-
-          BabyPhoto photo = BabyPhoto(
-            id: photoData['id'],
-            photoUrl: photoData['photo_url'],
-            createdAt: DateTime.parse(photoData['created_at']),
-            caption: photoData['caption'],
-            milestone: photoData['milestone'],
-            tags: photoTags,
-            isFavorite: photoData['is_favorite'] ?? false,
-          );
-          fetchedPhotos.add(photo);
         }
 
-        setState(() {
-          photos = fetchedPhotos;
-          filteredPhotos = fetchedPhotos;
-          _availableTags.clear();
-          _availableTags.addAll(tags);
-          _isLoading = false;
-        });
+        BabyPhoto photo = BabyPhoto(
+          id: photoData['id'],
+          photoUrl: photoData['photo_url'],
+          createdAt: DateTime.parse(photoData['created_at']),
+          caption: photoData['caption'],
+          milestone: photoData['milestone'],
+          tags: photoTags,
+          isFavorite: photoData['is_favorite'] ?? false,
+        );
+        fetchedPhotos.add(photo);
       }
+
+      setState(() {
+        photos = fetchedPhotos;
+        filteredPhotos = fetchedPhotos;
+        _availableTags.clear();
+        _availableTags.addAll(tags);
+        _isLoading = false;
+      });
     } catch (e) {
       print('Error fetching photos: $e');
       setState(() {

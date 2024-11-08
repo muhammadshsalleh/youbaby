@@ -9,9 +9,7 @@ import 'setting_help.dart';
 import 'logout.dart';
 import 'package:flutter_localization/flutter_localization.dart';
 
-
 class SettingsPage extends StatefulWidget {
-
   final int userID;
 
   const SettingsPage({super.key, required this.userID});
@@ -24,8 +22,9 @@ class _SettingsPage extends State<SettingsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Settings', 
-        style: TextStyle(
+        title: Text(
+          'Settings',
+          style: TextStyle(
             color: Color(0xFFEBE0D0),
             fontSize: 24.0,
             fontWeight: FontWeight.bold,
@@ -43,7 +42,8 @@ class _SettingsPage extends State<SettingsPage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => ProfileSettingsPage(userID: widget.userID)));
+                      builder: (context) =>
+                          ProfileSettingsPage(userID: widget.userID)));
             },
           ),
           Divider(),
@@ -156,8 +156,6 @@ class _SettingsPage extends State<SettingsPage> {
                 // Logout functionality
                 Navigator.of(context).pop();
                 // Implement logout functionality here
-              
-
               },
               child: Text("Logout"),
             ),
@@ -173,7 +171,11 @@ class SettingsTile extends StatelessWidget {
   final String title;
   final VoidCallback onTap;
 
-  SettingsTile({required this.icon, required this.title, required this.onTap});
+  const SettingsTile(
+      {super.key,
+      required this.icon,
+      required this.title,
+      required this.onTap});
 
   @override
   Widget build(BuildContext context) {

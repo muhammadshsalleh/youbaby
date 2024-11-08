@@ -43,7 +43,7 @@ class _GrowthTrackerPageState extends State<GrowthTrackerPage> {
           .select('babyName, babyBirthday')
           .eq('id', widget.userId)
           .single();
-      
+
       final historyResponse = await supabase
           .from('growthTracker')
           .select()
@@ -56,14 +56,14 @@ class _GrowthTrackerPageState extends State<GrowthTrackerPage> {
         if (userResponse['babyBirthday'] != null) {
           babyBirthday = DateTime.parse(userResponse['babyBirthday']);
         }
-        
+
         growthHistory = List<Map<String, dynamic>>.from(historyResponse);
         if (growthHistory.isNotEmpty) {
           lastMeasurement = growthHistory.first;
           heightValue = lastMeasurement!['height']?.toDouble() ?? 50.0;
           weightValue = lastMeasurement!['weight']?.toDouble() ?? 3.0;
         }
-        
+
         isLoading = false;
       });
     } catch (e) {
@@ -99,7 +99,7 @@ class _GrowthTrackerPageState extends State<GrowthTrackerPage> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Track ${babyName}\'s growth journey',
+            'Track $babyName\'s growth journey',
             style: const TextStyle(
               color: Colors.white70,
               fontSize: 16,
@@ -138,7 +138,8 @@ class _GrowthTrackerPageState extends State<GrowthTrackerPage> {
     );
   }
 
-  Widget _buildSummaryCard(String title, String value, IconData icon, bool isPositive) {
+  Widget _buildSummaryCard(
+      String title, String value, IconData icon, bool isPositive) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -269,7 +270,8 @@ class _GrowthTrackerPageState extends State<GrowthTrackerPage> {
     );
   }
 
-  Widget _buildMeasurementCard(String title, IconData icon, String value, String unit, Widget slider) {
+  Widget _buildMeasurementCard(
+      String title, IconData icon, String value, String unit, Widget slider) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       decoration: BoxDecoration(
@@ -318,7 +320,8 @@ class _GrowthTrackerPageState extends State<GrowthTrackerPage> {
                       ],
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
                         color: const Color(0xFFFFF0F7),
                         borderRadius: BorderRadius.circular(20),
@@ -492,7 +495,8 @@ class _GrowthTrackerPageState extends State<GrowthTrackerPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: isLoading
-          ? const Center(child: CircularProgressIndicator(
+          ? const Center(
+              child: CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFA91B60)),
             ))
           : CustomScrollView(
@@ -640,20 +644,25 @@ class _GrowthTrackerPageState extends State<GrowthTrackerPage> {
     }
   }
 
-  Future<Map<String, double>> _calculateGrowthMetrics(double height, double weight) async {
+  Future<Map<String, double>> _calculateGrowthMetrics(
+      double height, double weight) async {
     try {
       double heightDelta = 0;
       double weightDelta = 0;
       double growthPercentile = 50.0;
 
       if (lastMeasurement != null) {
-        heightDelta = height - (lastMeasurement!['height']?.toDouble() ?? height);
-        weightDelta = weight - (lastMeasurement!['weight']?.toDouble() ?? weight);
+        heightDelta =
+            height - (lastMeasurement!['height']?.toDouble() ?? height);
+        weightDelta =
+            weight - (lastMeasurement!['weight']?.toDouble() ?? weight);
       }
-      
+
       if (babyBirthday != null) {
-        final ageInMonths = DateTime.now().difference(babyBirthday!).inDays / 30.44;
-        growthPercentile = _calculateSimplePercentile(height, weight, ageInMonths);
+        final ageInMonths =
+            DateTime.now().difference(babyBirthday!).inDays / 30.44;
+        growthPercentile =
+            _calculateSimplePercentile(height, weight, ageInMonths);
       }
 
       return {
@@ -671,17 +680,18 @@ class _GrowthTrackerPageState extends State<GrowthTrackerPage> {
     }
   }
 
-  double _calculateSimplePercentile(double height, double weight, double ageInMonths) {
+  double _calculateSimplePercentile(
+      double height, double weight, double ageInMonths) {
     // This is a simplified calculation - in a real app, you'd want to use WHO or CDC growth charts
     final expectedHeight = 45 + (ageInMonths * 2); // Simplified growth curve
     final expectedWeight = 3 + (ageInMonths * 0.5); // Simplified growth curve
-    
+
     final heightDiff = (height - expectedHeight).abs();
     final weightDiff = (weight - expectedWeight).abs();
-    
+
     final heightPercentile = 100 - (heightDiff / expectedHeight * 100);
     final weightPercentile = 100 - (weightDiff / expectedWeight * 100);
-    
+
     return (heightPercentile + weightPercentile) / 2.clamp(0, 100);
   }
 }

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:youbaby/settings_page.dart';
 
 class NotificationSettingsPage extends StatefulWidget {
+  const NotificationSettingsPage({super.key});
+
   @override
   _NotificationSettingsPageState createState() =>
       _NotificationSettingsPageState();
@@ -18,12 +20,12 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Notification Settings", 
-        style: TextStyle(
-            color: Color(0xFFEBE0D0),
-            fontSize: 24.0,
-            fontWeight: FontWeight.bold,
-          )),
+        title: Text("Notification Settings",
+            style: TextStyle(
+              color: Color(0xFFEBE0D0),
+              fontSize: 24.0,
+              fontWeight: FontWeight.bold,
+            )),
         backgroundColor: Color(0xFFA81B60),
       ),
       body: Padding(
@@ -96,7 +98,8 @@ class SettingsSwitchTile extends StatelessWidget {
   final bool value;
   final ValueChanged<bool> onChanged;
 
-  SettingsSwitchTile({
+  const SettingsSwitchTile({
+    super.key,
     required this.title,
     required this.value,
     required this.onChanged,

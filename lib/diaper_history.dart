@@ -32,7 +32,7 @@ final Map<String, int> poopColorIndices = {
 class DiaperHistoryPage extends StatefulWidget {
   final int userID;
 
-  DiaperHistoryPage({Key? key, required this.userID}) : super(key: key);
+  const DiaperHistoryPage({super.key, required this.userID});
 
   @override
   _DiaperHistoryPageState createState() => _DiaperHistoryPageState();
@@ -145,7 +145,6 @@ class _DiaperHistoryPageState extends State<DiaperHistoryPage> {
     return Column(
       children: [
         _buildCalendarHeader(),
- 
         _buildCalendarGrid(),
       ],
     );
@@ -366,7 +365,7 @@ class _DiaperHistoryPageState extends State<DiaperHistoryPage> {
     );
   }
 
- Widget _buildHistoryCard(Map<String, dynamic> entry) {
+  Widget _buildHistoryCard(Map<String, dynamic> entry) {
     final DateTime dateTime = DateTime.parse(entry['date_time']);
     final String formattedTime = DateFormat('h:mm a').format(dateTime);
     final type = entry['type'];
@@ -647,8 +646,7 @@ class _DiaperHistoryPageState extends State<DiaperHistoryPage> {
 class DiaperEntryDetailsSheet extends StatelessWidget {
   final Map<String, dynamic> entry;
 
-  const DiaperEntryDetailsSheet({Key? key, required this.entry})
-      : super(key: key);
+  const DiaperEntryDetailsSheet({super.key, required this.entry});
 
   Color getPooColor(String colorName) {
     final index = poopColorIndices[colorName];
@@ -681,7 +679,7 @@ class DiaperEntryDetailsSheet extends StatelessWidget {
     }
   }
 
-   Widget _buildInfoPill(String text, Color color, {Color? borderColor}) {
+  Widget _buildInfoPill(String text, Color color, {Color? borderColor}) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
@@ -709,8 +707,7 @@ class DiaperEntryDetailsSheet extends StatelessWidget {
     final hasRash = entry['diaper_rash'] == true;
     final note = entry['note'] ?? '';
     final texture = entry['poo_texture'] ?? ''; // Updated field name
-    final color = entry['poo_color'] ?? '';     // Updated field name
-
+    final color = entry['poo_color'] ?? ''; // Updated field name
 
     return Container(
       decoration: BoxDecoration(
@@ -783,7 +780,8 @@ class DiaperEntryDetailsSheet extends StatelessWidget {
                     ),
                   ],
                 ),
-                 if ((type == 'Poo' || type == 'Mixed') && (texture.isNotEmpty || color.isNotEmpty)) ...[
+                if ((type == 'Poo' || type == 'Mixed') &&
+                    (texture.isNotEmpty || color.isNotEmpty)) ...[
                   const SizedBox(height: 16),
                   Wrap(
                     spacing: 8,

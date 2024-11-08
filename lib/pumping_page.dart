@@ -128,7 +128,7 @@ class TimerService extends ChangeNotifier {
 class PumpingPage extends StatelessWidget {
   final int userId;
 
-  const PumpingPage({Key? key, required this.userId}) : super(key: key);
+  const PumpingPage({super.key, required this.userId});
 
   @override
   Widget build(BuildContext context) {
@@ -142,7 +142,7 @@ class PumpingPage extends StatelessWidget {
 class _PumpingPageContent extends StatefulWidget {
   final int userId;
 
-  const _PumpingPageContent({Key? key, required this.userId}) : super(key: key);
+  const _PumpingPageContent({super.key, required this.userId});
 
   @override
   _PumpingPageContentState createState() => _PumpingPageContentState();
@@ -325,30 +325,32 @@ class _PumpingPageContentState extends State<_PumpingPageContent> {
   }
 
   void _showResetConfirmation(BuildContext parentContext, String side) {
-  showDialog(
-    context: parentContext,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text('Reset $side Timer'),
-        content: Text('Are you sure you want to reset the $side breast timer?'),
-        actions: [
-          TextButton(
-            child: const Text('Cancel'),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-          TextButton(
-            child: const Text('Reset'),
-            onPressed: () {
-              // Use parentContext instead of context
-              Provider.of<TimerService>(parentContext, listen: false).resetTimer(side);
-              Navigator.of(context).pop();
-            },
-          ),
-        ],
-      );
-    },
-  );
-}
+    showDialog(
+      context: parentContext,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Reset $side Timer'),
+          content:
+              Text('Are you sure you want to reset the $side breast timer?'),
+          actions: [
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            TextButton(
+              child: const Text('Reset'),
+              onPressed: () {
+                // Use parentContext instead of context
+                Provider.of<TimerService>(parentContext, listen: false)
+                    .resetTimer(side);
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   String _formatTime(int seconds) {
     int minutes = seconds ~/ 60;
@@ -358,8 +360,7 @@ class _PumpingPageContentState extends State<_PumpingPageContent> {
 
   void _navigateToAmountInput(
       BuildContext context, TimerService timerService) async {
-        
-      timerService.pauseTimers();
+    timerService.pauseTimers();
     // Use the startTime from TimerService if it's available
     DateTime startTime = timerService.startTime ?? DateTime.now();
 

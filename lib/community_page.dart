@@ -23,7 +23,7 @@ class CommunityPage extends StatefulWidget {
 }
 
 class _CommunityPageState extends State<CommunityPage> {
-  int _selectedIndex = 2;
+  final int _selectedIndex = 2;
   List<Map<String, dynamic>> _communityPosts = [];
   bool _isLoading = true;
 
@@ -116,34 +116,34 @@ class _CommunityPageState extends State<CommunityPage> {
 
   void _onItemTapped(int index) {
     setState(() {
-      int _selectedIndex = 2;
+      int selectedIndex = 2;
       switch (index) {
         case 0:
           Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => ProfilePage(userID: widget.userID!)),
+                builder: (context) => ProfilePage(userID: widget.userID)),
           );
           break;
         case 1:
           Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => MomLibraryPage(userID: widget.userID!)),
+                builder: (context) => MomLibraryPage(userID: widget.userID)),
           );
           break;
         case 2:
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-                builder: (context) => HomePage(userID: widget.userID!)),
+                builder: (context) => HomePage(userID: widget.userID)),
           );
           break;
         case 3:
           Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => CommunityPage(userID: widget.userID!)),
+                builder: (context) => CommunityPage(userID: widget.userID)),
           );
           break;
         case 4:
@@ -184,15 +184,16 @@ class _CommunityPageState extends State<CommunityPage> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => CommentsPage(
-                          //if post to communitypage, add here
+                            //if post to communitypage, add here
 
-                          postId: post['id'],
-                          userId: widget.userID,
-                          postTitle: post['title'],
-                          postContent: post['content'],
-                          postImage: post['image_url'],
-                          postAuthor: post['author'] //error here when click post w image
-                        ),
+                            postId: post['id'],
+                            userId: widget.userID,
+                            postTitle: post['title'],
+                            postContent: post['content'],
+                            postImage: post['image_url'],
+                            postAuthor: post[
+                                'author'] //error here when click post w image
+                            ),
                       ),
                     );
                   },
@@ -312,7 +313,6 @@ class _CommunityPageState extends State<CommunityPage> {
               ),
             ),
             const SizedBox(height: 4.0),
-
             if (imageUrl != null && imageUrl.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 8.0),
@@ -331,7 +331,6 @@ class _CommunityPageState extends State<CommunityPage> {
                   ),
                 ),
               ),
-
             if (title.isNotEmpty) const SizedBox(height: 16.0),
             Row(
               mainAxisAlignment: MainAxisAlignment.start,

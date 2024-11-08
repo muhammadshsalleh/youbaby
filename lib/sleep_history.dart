@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 class SleepHistoryPage extends StatefulWidget {
   final int userID;
 
-  const SleepHistoryPage({Key? key, required this.userID}) : super(key: key);
+  const SleepHistoryPage({super.key, required this.userID});
 
   @override
   _SleepHistoryPageState createState() => _SleepHistoryPageState();
@@ -130,15 +130,12 @@ class _SleepHistoryPageState extends State<SleepHistoryPage> {
 
     try {
       final duration = endTime.difference(startTime).inSeconds;
-      await supabase
-          .from('sleepTracker')
-          .update({
-            'sleepStart': startTime.toIso8601String(),
-            'sleepEnd': endTime.toIso8601String(),
-            'duration': duration,
-            'notes': note,
-          })
-          .eq('id', id);
+      await supabase.from('sleepTracker').update({
+        'sleepStart': startTime.toIso8601String(),
+        'sleepEnd': endTime.toIso8601String(),
+        'duration': duration,
+        'notes': note,
+      }).eq('id', id);
 
       _loadSleepRecords();
       ScaffoldMessenger.of(context).showSnackBar(
@@ -175,7 +172,8 @@ class _SleepHistoryPageState extends State<SleepHistoryPage> {
                       decoration: const InputDecoration(labelText: 'Notes'),
                     ),
                     const SizedBox(height: 20),
-                    const Text('Start Time:', style: TextStyle(fontWeight: FontWeight.bold)),
+                    const Text('Start Time:',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
                     Text(DateFormat('MMM d, h:mm a').format(startTime)),
                     ElevatedButton(
                       onPressed: () async {
@@ -206,7 +204,8 @@ class _SleepHistoryPageState extends State<SleepHistoryPage> {
                       child: const Text('Change Start Time'),
                     ),
                     const SizedBox(height: 20),
-                    const Text('End Time:', style: TextStyle(fontWeight: FontWeight.bold)),
+                    const Text('End Time:',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
                     Text(DateFormat('MMM d, h:mm a').format(endTime)),
                     ElevatedButton(
                       onPressed: () async {
@@ -247,7 +246,8 @@ class _SleepHistoryPageState extends State<SleepHistoryPage> {
                 TextButton(
                   onPressed: () {
                     Navigator.pop(context);
-                    _updateSleepRecord(record['id'], startTime, endTime, noteController.text);
+                    _updateSleepRecord(
+                        record['id'], startTime, endTime, noteController.text);
                   },
                   child: const Text('Update'),
                 ),
@@ -335,12 +335,14 @@ class _SleepHistoryPageState extends State<SleepHistoryPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Actual Sleep: $hours h ${minutes} m',
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                  'Actual Sleep: $hours h $minutes m',
+                  style: const TextStyle(
+                      fontSize: 14, fontWeight: FontWeight.w600),
                 ),
                 Text(
                   'Target: $targetHours h',
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                  style: const TextStyle(
+                      fontSize: 14, fontWeight: FontWeight.w600),
                 ),
               ],
             ),
@@ -375,9 +377,11 @@ class _SleepHistoryPageState extends State<SleepHistoryPage> {
               const SizedBox(height: 16),
               Expanded(
                 child: ListView.builder(
-                  itemCount: _categorizedSleepRecords[_selectedCategory]!.length,
+                  itemCount:
+                      _categorizedSleepRecords[_selectedCategory]!.length,
                   itemBuilder: (context, index) {
-                    final record = _categorizedSleepRecords[_selectedCategory]![index];
+                    final record =
+                        _categorizedSleepRecords[_selectedCategory]![index];
                     final startTime = DateFormat('MMM d, h:mm a')
                         .format(DateTime.parse(record['sleepStart']));
                     final endTime = DateFormat('MMM d, h:mm a')
@@ -409,10 +413,12 @@ class _SleepHistoryPageState extends State<SleepHistoryPage> {
                             context: context,
                             builder: (context) => AlertDialog(
                               title: const Text('Confirm Deletion'),
-                              content: const Text('Are you sure you want to delete this sleep record?'),
+                              content: const Text(
+                                  'Are you sure you want to delete this sleep record?'),
                               actions: [
                                 TextButton(
-                                  onPressed: () => Navigator.pop(context, false),
+                                  onPressed: () =>
+                                      Navigator.pop(context, false),
                                   child: const Text('Cancel'),
                                 ),
                                 TextButton(
@@ -431,9 +437,11 @@ class _SleepHistoryPageState extends State<SleepHistoryPage> {
                       },
                       child: Card(
                         elevation: 4,
-                        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                        margin: const EdgeInsets.symmetric(
+                            vertical: 8, horizontal: 4),
                         child: ListTile(
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8),
                           title: Text(
                             '$startTime - $endTime',
                             style: const TextStyle(fontWeight: FontWeight.bold),
@@ -445,7 +453,8 @@ class _SleepHistoryPageState extends State<SleepHistoryPage> {
                               Text('Notes: ${record['notes'] ?? 'No notes'}'),
                             ],
                           ),
-                          trailing: const Icon(Icons.nightlight_round, color: Colors.indigo),
+                          trailing: const Icon(Icons.nightlight_round,
+                              color: Colors.indigo),
                         ),
                       ),
                     );

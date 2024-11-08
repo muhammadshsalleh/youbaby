@@ -8,8 +8,7 @@ import 'package:youbaby/pumpingInsightsPage.dart';
 
 class FeedingOverviewInsightsPage extends StatefulWidget {
   final int userID;
-  const FeedingOverviewInsightsPage({Key? key, required this.userID})
-      : super(key: key);
+  const FeedingOverviewInsightsPage({super.key, required this.userID});
 
   @override
   _FeedingOverviewInsightsPageState createState() =>
@@ -53,7 +52,7 @@ class _FeedingOverviewInsightsPageState
           .eq('id', widget.userID)
           .single();
 
-      if (response != null && response['babyBirthday'] != null) {
+      if (response['babyBirthday'] != null) {
         setState(() {
           _babyBirthday = DateTime.parse(response['babyBirthday']);
           _babyAgeInMonths = _calculateAgeInMonths(_babyBirthday!);
@@ -177,7 +176,7 @@ class _FeedingOverviewInsightsPageState
       timeOfDayCount[timeOfDay] = (timeOfDayCount[timeOfDay] ?? 0) + 1;
 
       if (lastFeedingTime != null && feedingType != 'Pumping') {
-        Duration interval = startTime.difference(lastFeedingTime!);
+        Duration interval = startTime.difference(lastFeedingTime);
         feedingIntervals.add(interval);
       }
       if (feedingType != 'Pumping') {
@@ -306,7 +305,7 @@ class _FeedingOverviewInsightsPageState
     return 'Night';
   }
 
-   @override
+  @override
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 3,
@@ -340,7 +339,7 @@ class _FeedingOverviewInsightsPageState
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
-    
+
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -357,7 +356,7 @@ class _FeedingOverviewInsightsPageState
   }
 
   Widget _buildTimePeriodSelector() {
-    return Container(
+    return SizedBox(
       height: 50,
       child: ListView(
         scrollDirection: Axis.horizontal,
@@ -400,11 +399,13 @@ class _FeedingOverviewInsightsPageState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Feeding Overview for Your ${_babyAgeInMonths}-Month-Old',
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                'Feeding Overview for Your $_babyAgeInMonths-Month-Old',
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
-              const Text('No feeding data available yet. Start tracking to see insights!'),
+              const Text(
+                  'No feeding data available yet. Start tracking to see insights!'),
             ],
           ),
         ),
@@ -419,7 +420,7 @@ class _FeedingOverviewInsightsPageState
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Feeding Overview for Your ${_babyAgeInMonths}-Month-Old',
+              'Feeding Overview for Your $_babyAgeInMonths-Month-Old',
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
@@ -438,8 +439,9 @@ class _FeedingOverviewInsightsPageState
     );
   }
 
-Widget _buildFeedingTypeDistribution() {
-    final typeDistribution = _insights['typeDistribution'] as Map<String, int>? ?? {};
+  Widget _buildFeedingTypeDistribution() {
+    final typeDistribution =
+        _insights['typeDistribution'] as Map<String, int>? ?? {};
     if (typeDistribution.isEmpty) {
       return _buildNoDataMessage('Not enough feeding type data available');
     }
@@ -463,7 +465,10 @@ Widget _buildFeedingTypeDistribution() {
                 Expanded(
                   flex: 1,
                   child: total == 0
-                      ? Center(child: Text('Not enough data', style: TextStyle(fontSize: 16, color: Colors.grey[600])))
+                      ? Center(
+                          child: Text('Not enough data',
+                              style: TextStyle(
+                                  fontSize: 16, color: Colors.grey[600])))
                       : SizedBox(
                           width: 150,
                           height: 200,
@@ -498,7 +503,8 @@ Widget _buildFeedingTypeDistribution() {
                           children: feedingTypes.map((type) {
                             final index = feedingTypes.indexOf(type);
                             final value = typeDistribution[type] ?? 0;
-                            final percentage = total > 0 ? (value / total * 100) : 0;
+                            final percentage =
+                                total > 0 ? (value / total * 100) : 0;
                             return Padding(
                               padding: const EdgeInsets.symmetric(vertical: 4),
                               child: Row(
@@ -1063,7 +1069,7 @@ Widget _buildFeedingTypeDistribution() {
                           enhancedData[flSpot.x.toInt()]['date']);
                       final feedingData = enhancedData[flSpot.x.toInt()];
                       return LineTooltipItem(
-                        '${DateFormat('MM/dd').format(date)}',
+                        DateFormat('MM/dd').format(date),
                         const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -1168,7 +1174,8 @@ Widget _buildFeedingTypeDistribution() {
     List<String> recommendations = [];
 
     // General feeding frequency recommendations
-    double feedingsPerDay = (_insights['feedingsPerDay'] as num?)?.toDouble() ?? 0.0;
+    double feedingsPerDay =
+        (_insights['feedingsPerDay'] as num?)?.toDouble() ?? 0.0;
     if (_babyAgeInMonths <= 1) {
       if (feedingsPerDay < 8) {
         recommendations.add(
@@ -1192,7 +1199,8 @@ Widget _buildFeedingTypeDistribution() {
     }
 
     // Bottle feeding recommendations
-    double averageBottleVolume = (_insights['averageBottleVolume'] as num?)?.toDouble() ?? 0.0;
+    double averageBottleVolume =
+        (_insights['averageBottleVolume'] as num?)?.toDouble() ?? 0.0;
     if (_babyAgeInMonths <= 6) {
       if (averageBottleVolume > 180) {
         recommendations.add(
@@ -1213,7 +1221,8 @@ Widget _buildFeedingTypeDistribution() {
     }
 
     // Night feeding recommendations
-    Duration? longestStretch = _insights['longestStretchBetweenFeedings'] as Duration?;
+    Duration? longestStretch =
+        _insights['longestStretchBetweenFeedings'] as Duration?;
     if (longestStretch != null) {
       if (_babyAgeInMonths <= 3 && longestStretch.inHours > 4) {
         recommendations.add(
@@ -1242,7 +1251,8 @@ Widget _buildFeedingTypeDistribution() {
     }
 
     if (recommendations.isEmpty) {
-      return _buildNoDataMessage('Not enough data for personalized recommendations');
+      return _buildNoDataMessage(
+          'Not enough data for personalized recommendations');
     }
 
     return Column(
@@ -1256,22 +1266,18 @@ Widget _buildFeedingTypeDistribution() {
               ?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),
-        ...recommendations
-            .map((rec) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Icon(Icons.info_outline,
-                          size: 18, color: Colors.blue),
-                      const SizedBox(width: 8),
-                      Expanded(
-                          child:
-                              Text(rec, style: const TextStyle(fontSize: 14))),
-                    ],
-                  ),
-                ))
-            .toList(),
+        ...recommendations.map((rec) => Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.info_outline, size: 18, color: Colors.blue),
+                  const SizedBox(width: 8),
+                  Expanded(
+                      child: Text(rec, style: const TextStyle(fontSize: 14))),
+                ],
+              ),
+            )),
       ],
     );
   }

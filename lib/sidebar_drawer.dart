@@ -14,10 +14,10 @@ class CustomSidebar extends StatefulWidget {
   final int userID;
 
   const CustomSidebar({
-    Key? key,
+    super.key,
     required this.parentName,
     required this.userID,
-  }) : super(key: key);
+  });
 
   @override
   _CustomSidebarState createState() => _CustomSidebarState();
@@ -39,7 +39,7 @@ class _CustomSidebarState extends State<CustomSidebar> {
           .select('image')
           .eq('id', widget.userID)
           .single();
-      
+
       setState(() {
         imageUrl = response['image'];
       });
@@ -79,7 +79,7 @@ class _CustomSidebarState extends State<CustomSidebar> {
                   const SizedBox(width: 16),
                   Flexible(
                     child: Text(
-                      '${widget.parentName ?? "Loading..."}',
+                      widget.parentName ?? "Loading...",
                       style: const TextStyle(
                         color: Color(0xFFA91B60),
                         fontSize: 24,
@@ -128,7 +128,8 @@ class _CustomSidebarState extends State<CustomSidebar> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => MomLibraryPage(userID: widget.userID)),
+                      builder: (context) =>
+                          MomLibraryPage(userID: widget.userID)),
                 );
               },
             ),
@@ -169,11 +170,13 @@ class _CustomSidebarState extends State<CustomSidebar> {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => SettingsPage(userID: widget.userID)),
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          SettingsPage(userID: widget.userID)),
                 );
               },
             ),
-            
+
             // //location test
             // ListTile(
             //   leading: const Icon(
@@ -196,7 +199,7 @@ class _CustomSidebarState extends State<CustomSidebar> {
               ),
               title: const Text('Logout'),
               onTap: () {
-               showLogoutConfirmationDialog(context);
+                showLogoutConfirmationDialog(context);
               },
             ),
           ],

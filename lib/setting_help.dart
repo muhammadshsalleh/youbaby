@@ -3,6 +3,8 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 class HelpSupportPage extends StatefulWidget {
+  const HelpSupportPage({super.key});
+
   @override
   _HelpSupportPageState createState() => _HelpSupportPageState();
 }
@@ -12,14 +14,13 @@ class _HelpSupportPageState extends State<HelpSupportPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Help & Support", 
-        style: TextStyle(
-            color: Color(0xFFEBE0D0),
-            fontSize: 24.0,
-            fontWeight: FontWeight.bold,
-          )),
-        backgroundColor: Color(0xFFA81B60)
-        ,
+        title: Text("Help & Support",
+            style: TextStyle(
+              color: Color(0xFFEBE0D0),
+              fontSize: 24.0,
+              fontWeight: FontWeight.bold,
+            )),
+        backgroundColor: Color(0xFFA81B60),
       ),
       body: ListView(
         children: [
@@ -92,7 +93,7 @@ class _HelpSupportPageState extends State<HelpSupportPage> {
 class WebViewPage extends StatefulWidget {
   final String url;
 
-  WebViewPage({required this.url});
+  const WebViewPage({super.key, required this.url});
 
   @override
   _WebViewPageState createState() => _WebViewPageState();
@@ -126,6 +127,8 @@ class _WebViewPageState extends State<WebViewPage> {
 }
 
 class AboutAppPage extends StatelessWidget {
+  const AboutAppPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -184,7 +187,11 @@ class SettingsTile extends StatelessWidget {
   final String title;
   final VoidCallback onTap;
 
-  SettingsTile({required this.icon, required this.title, required this.onTap});
+  const SettingsTile(
+      {super.key,
+      required this.icon,
+      required this.title,
+      required this.onTap});
 
   @override
   Widget build(BuildContext context) {

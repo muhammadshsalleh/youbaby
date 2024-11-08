@@ -31,7 +31,8 @@ class HomePage extends StatefulWidget {
   final bool requestLocation;
 
   // const HomePage({required this.userID});
-  const HomePage({required this.userID, this.requestLocation = false});
+  const HomePage(
+      {super.key, required this.userID, this.requestLocation = false});
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -55,87 +56,93 @@ class _HomePageState extends State<HomePage> {
   late Timer _articleTimer;
 
   List<Map<String, dynamic>> get toolCards => [
-    {
-      'title': 'Checklists',
-      'icon': Icons.checklist,
-      'onTap': () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => ChecklistPage(userId: userID!)),
-        );
-      },
-    },
-    {
-      'title': 'Name Library',
-      'icon': Icons.library_books,
-      'onTap': () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const NameLibraryPage()),
-        );
-      },
-    },
-    {
-      'title': 'Baby Tracker',
-      'icon': Icons.baby_changing_station,
-      'onTap': () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => BabyTrackerPage(userID: userID!)),
-        );
-      },
-    },
-    {
-      'title': 'Mom\'s Library',
-      'icon': Icons.library_books,
-      'onTap': () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => MomLibraryPage(userID: userID!)),
-        );
-      },
-    },
-    {
-      'title': 'Baby Album',
-      'icon': Icons.photo_album,
-      'onTap': () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => BabyAlbumPage(userID: userID!)),
-        );
-      },
-    },
-    {
-      'title': 'Donate Item',
-      'icon': Icons.card_giftcard,
-      'onTap': () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) =>  CharityPage(userID: widget.userID)),
-        );
-      },
-    },
-    {
-      'title': 'Nearby Clinics',
-      'icon': Icons.local_hospital,
-      'onTap': () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const NearbyClinicPage()),
-        );
-      },
-    },
-    {
-      'title': 'Community',
-      'icon': Icons.forum,
-      'onTap': () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) =>  CommunityPage(userID: userID!)),
-        );
-      },
-    },
-  ];
+        {
+          'title': 'Checklists',
+          'icon': Icons.checklist,
+          'onTap': () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => ChecklistPage(userId: userID!)),
+            );
+          },
+        },
+        {
+          'title': 'Name Library',
+          'icon': Icons.library_books,
+          'onTap': () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const NameLibraryPage()),
+            );
+          },
+        },
+        {
+          'title': 'Baby Tracker',
+          'icon': Icons.baby_changing_station,
+          'onTap': () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => BabyTrackerPage(userID: userID!)),
+            );
+          },
+        },
+        {
+          'title': 'Mom\'s Library',
+          'icon': Icons.library_books,
+          'onTap': () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => MomLibraryPage(userID: userID!)),
+            );
+          },
+        },
+        {
+          'title': 'Baby Album',
+          'icon': Icons.photo_album,
+          'onTap': () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => BabyAlbumPage(userID: userID!)),
+            );
+          },
+        },
+        {
+          'title': 'Donate Item',
+          'icon': Icons.card_giftcard,
+          'onTap': () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => CharityPage(userID: widget.userID)),
+            );
+          },
+        },
+        {
+          'title': 'Nearby Clinics',
+          'icon': Icons.local_hospital,
+          'onTap': () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const NearbyClinicPage()),
+            );
+          },
+        },
+        {
+          'title': 'Community',
+          'icon': Icons.forum,
+          'onTap': () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => CommunityPage(userID: userID!)),
+            );
+          },
+        },
+      ];
 
   Future<bool> _onWillPop() async {
     return (await showDialog(
@@ -304,7 +311,6 @@ class _HomePageState extends State<HomePage> {
           'state': place.administrativeArea ?? 'Unknown',
           'country': place.country ?? 'Unknown',
           // 'district': place.subAdministrativeArea ?? 'Unknown',  // Add this line for county
-          
         }).eq('id', widget.userID);
 
         // ScaffoldMessenger.of(context).showSnackBar(
@@ -362,7 +368,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildToolCard(BuildContext context, String title, IconData icon,
-    Color color, VoidCallback onTap) {
+      Color color, VoidCallback onTap) {
     double screenWidth = MediaQuery.of(context).size.width;
     int numCards = 4; // Adjust this based on the number of cards
 
@@ -376,7 +382,7 @@ class _HomePageState extends State<HomePage> {
       cardWidth = screenWidth / 2 - 16;
     }
 
-    return Container(
+    return SizedBox(
       width: cardWidth,
       child: Card(
         elevation: 5, // Add elevation for shadow effect
@@ -429,8 +435,9 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+
   Widget _buildToolsGrid() {
-    List<Map<String, dynamic>> visibleTools = 
+    List<Map<String, dynamic>> visibleTools =
         _showAllTools ? toolCards : toolCards.take(4).toList();
 
     return Column(
@@ -440,13 +447,15 @@ class _HomePageState extends State<HomePage> {
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           padding: const EdgeInsets.all(8.0),
-          children: visibleTools.map((tool) => _buildToolCard(
-            context,
-            tool['title'],
-            tool['icon'],
-            const Color(0xFFEC9EC0),
-            tool['onTap'],
-          )).toList(),
+          children: visibleTools
+              .map((tool) => _buildToolCard(
+                    context,
+                    tool['title'],
+                    tool['icon'],
+                    const Color(0xFFEC9EC0),
+                    tool['onTap'],
+                  ))
+              .toList(),
         ),
         if (toolCards.length > 4)
           Padding(
@@ -469,7 +478,9 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                   Icon(
-                    _showAllTools ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                    _showAllTools
+                        ? Icons.keyboard_arrow_up
+                        : Icons.keyboard_arrow_down,
                     color: const Color(0xFFA91B60),
                   ),
                 ],
@@ -526,26 +537,26 @@ class _HomePageState extends State<HomePage> {
           ),
           //end drawer - sidebar
 
-         body: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Color(0xFFf5e5ed), Color(0xFFebccdb)],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              stops: [0.9, 1.0],
+          body: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFFf5e5ed), Color(0xFFebccdb)],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                stops: [0.9, 1.0],
+              ),
             ),
-          ),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 10.0),
-                // Image carousel
-                Container(
-                  height: MediaQuery.of(context).size.height * 0.3,
-                  child: PageView(
-                    controller: _imagePageController,
-                    children: <Widget>[
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 10.0),
+                  // Image carousel
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.3,
+                    child: PageView(
+                      controller: _imagePageController,
+                      children: <Widget>[
                         Image.asset(
                           'assets/Photo.jpg',
                           fit: BoxFit.contain,
@@ -586,7 +597,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                   // Latest Articles Carousel
-                  Container(
+                  SizedBox(
                     height: 230.0, // Adjust as needed
                     child: PageView.builder(
                       controller: _articlePageController,
@@ -643,8 +654,7 @@ class _HomePageState extends State<HomePage> {
                                   const SizedBox(height: 8.0),
                                   Text(
                                     article['detail'] != null
-                                        ? article['detail']
-                                                .substring(0, 150) +
+                                        ? article['detail'].substring(0, 150) +
                                             '...'
                                         : 'No Content',
                                     style: const TextStyle(

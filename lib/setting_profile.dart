@@ -5,7 +5,7 @@ import 'welcome_page.dart';
 class ProfileSettingsPage extends StatefulWidget {
   final int userID;
 
-  const ProfileSettingsPage({Key? key, required this.userID}) : super(key: key);
+  const ProfileSettingsPage({super.key, required this.userID});
 
   @override
   _ProfileSettingsPageState createState() => _ProfileSettingsPageState();
@@ -171,8 +171,9 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Profile Settings",
-        style: TextStyle(
+        title: const Text(
+          "Profile Settings",
+          style: TextStyle(
             color: Color(0xFFEBE0D0),
             fontSize: 24.0,
             fontWeight: FontWeight.bold,
@@ -232,15 +233,12 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                   : Text(
                       _currentEmail,
                       style: const TextStyle(
-                        color: Color.fromARGB(255, 97, 96, 96),
-                        fontSize: 16
-                      ),
+                          color: Color.fromARGB(255, 97, 96, 96), fontSize: 16),
                     ),
             ),
             const SizedBox(width: 8),
             TextButton(
               onPressed: () {
-                
                 setState(() {
                   if (_isEditingEmail) {
                     _saveEmailChanges();
@@ -250,7 +248,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                   }
                 });
               },
-               style: TextButton.styleFrom(
+              style: TextButton.styleFrom(
                 foregroundColor: Color(0xFFA81B60), // Set the text color
               ),
               child: Text(_isEditingEmail ? "Save" : "Edit"),
@@ -309,7 +307,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: _savePasswordChanges,
-             style: ElevatedButton.styleFrom(
+            style: ElevatedButton.styleFrom(
               backgroundColor: Color(0xFFA81B60), // Set the background color
               foregroundColor: Colors.white, // Set the text color
             ),
@@ -331,12 +329,12 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
         const SizedBox(height: 8),
         ElevatedButton(
           onPressed: _showDeleteAccountDialog,
-          child: const Text("Deactivate Account"),
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.red,
             foregroundColor: Colors.white,
             // padding: const EdgeInsets.symmetric(vertical: 16),
           ),
+          child: const Text("Deactivate Account"),
         ),
       ],
     );

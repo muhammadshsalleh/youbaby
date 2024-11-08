@@ -6,7 +6,7 @@ import 'package:intl/intl.dart';
 class FeedingHistoryPage extends StatefulWidget {
   final int userId;
 
-  const FeedingHistoryPage({Key? key, required this.userId}) : super(key: key);
+  const FeedingHistoryPage({super.key, required this.userId});
 
   @override
   _FeedingHistoryPageState createState() => _FeedingHistoryPageState();
@@ -25,28 +25,29 @@ class _FeedingHistoryPageState extends State<FeedingHistoryPage> {
   }
 
   Future<void> _loadFeedingSessions() async {
-  setState(() {
-    isLoading = true;
-  });
+    setState(() {
+      isLoading = true;
+    });
 
-  final supabase = Supabase.instance.client;
+    final supabase = Supabase.instance.client;
 
-  try {
-    final response = await supabase
-        .from('feedingTracker')
-        .select()
-        .eq('userID', widget.userId)
-        .order('startTime', ascending: false);
+    try {
+      final response = await supabase
+          .from('feedingTracker')
+          .select()
+          .eq('userID', widget.userId)
+          .order('startTime', ascending: false);
 
-    if (response != null && response is List) {
-      Map<String, FeedingSession> sessionMap = {};
+      if (response is List) {
+        Map<String, FeedingSession> sessionMap = {};
 
-      for (var record in response) {
-        String sessionKey = DateFormat('yyyyMMddHHmm').format(DateTime.parse(record['startTime']));
-        
-        if (!sessionMap.containsKey(sessionKey)) {
-          // Determine the feeding type based on the record data
-          FeedingType feedingType;
+        for (var record in response) {
+          String sessionKey = DateFormat('yyyyMMddHHmm')
+              .format(DateTime.parse(record['startTime']));
+
+          if (!sessionMap.containsKey(sessionKey)) {
+            // Determine the feeding type based on the record data
+            FeedingType feedingType;
             if (record['feedingType'] == 'Breast') {
               feedingType = FeedingType.Breast;
             } else if (record['feedingType'] == 'Bottle') {
@@ -65,41 +66,41 @@ class _FeedingHistoryPageState extends State<FeedingHistoryPage> {
               rightBreastDuration: 0,
               feedingType: feedingType,
             );
+          }
+
+          FeedingSession session = sessionMap[sessionKey]!;
+          session.totalTime += record['duration'] as int;
+
+          if (record['breastSide'] == 'Left') {
+            session.leftBreastDuration += record['duration'] as int;
+          } else if (record['breastSide'] == 'Right') {
+            session.rightBreastDuration += record['duration'] as int;
+          }
         }
 
-        FeedingSession session = sessionMap[sessionKey]!;
-        session.totalTime += record['duration'] as int;
-        
-        if (record['breastSide'] == 'Left') {
-          session.leftBreastDuration += record['duration'] as int;
-        } else if (record['breastSide'] == 'Right') {
-          session.rightBreastDuration += record['duration'] as int;
-        }
+        setState(() {
+          feedingSessions = sessionMap.values.toList()
+            ..sort((a, b) => b.dateTime.compareTo(a.dateTime));
+          _filterFeedingSessions();
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          feedingSessions = [];
+          filteredFeedingSessions = [];
+          isLoading = false;
+        });
       }
-
+    } catch (e) {
+      print('Error fetching records: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error loading feeding records: $e')),
+      );
       setState(() {
-        feedingSessions = sessionMap.values.toList()
-          ..sort((a, b) => b.dateTime.compareTo(a.dateTime));
-        _filterFeedingSessions();
-        isLoading = false;
-      });
-    } else {
-      setState(() {
-        feedingSessions = [];
-        filteredFeedingSessions = [];
         isLoading = false;
       });
     }
-  } catch (e) {
-    print('Error fetching records: $e');
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Error loading feeding records: $e')),
-    );
-    setState(() {
-      isLoading = false;
-    });
   }
-}
 
   void _filterFeedingSessions() {
     DateTime now = DateTime.now();
@@ -112,7 +113,8 @@ class _FeedingHistoryPageState extends State<FeedingHistoryPage> {
         break;
       case TimeRange.yesterday:
         startDate = DateTime(now.year, now.month, now.day - 1);
-        endDate = DateTime(now.year, now.month, now.day).subtract(const Duration(seconds: 1));
+        endDate = DateTime(now.year, now.month, now.day)
+            .subtract(const Duration(seconds: 1));
         break;
       case TimeRange.last7Days:
         startDate = now.subtract(const Duration(days: 7));
@@ -124,12 +126,15 @@ class _FeedingHistoryPageState extends State<FeedingHistoryPage> {
 
     setState(() {
       filteredFeedingSessions = feedingSessions
-          .where((session) => session.dateTime.isAfter(startDate) && session.dateTime.isBefore(endDate.add(const Duration(seconds: 1))))
+          .where((session) =>
+              session.dateTime.isAfter(startDate) &&
+              session.dateTime
+                  .isBefore(endDate.add(const Duration(seconds: 1))))
           .toList();
     });
   }
 
- @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -146,7 +151,7 @@ class _FeedingHistoryPageState extends State<FeedingHistoryPage> {
         ),
         child: Column(
           children: [
-              SingleChildScrollView(
+            SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: _buildTimeRangeButtons(),
             ),
@@ -157,7 +162,8 @@ class _FeedingHistoryPageState extends State<FeedingHistoryPage> {
                       ? Center(
                           child: Text(
                             'No feeding records for the selected time range',
-                            style: TextStyle(fontSize: 16, color: Colors.grey[800]),
+                            style: TextStyle(
+                                fontSize: 16, color: Colors.grey[800]),
                           ),
                         )
                       : _buildFeedingSessionsList(),
@@ -185,7 +191,7 @@ class _FeedingHistoryPageState extends State<FeedingHistoryPage> {
     );
   }
 
-   Widget _buildTimeRangeButton(TimeRange range, String label) {
+  Widget _buildTimeRangeButton(TimeRange range, String label) {
     return ElevatedButton(
       onPressed: () {
         setState(() {
@@ -194,8 +200,10 @@ class _FeedingHistoryPageState extends State<FeedingHistoryPage> {
         });
       },
       style: ElevatedButton.styleFrom(
-        foregroundColor: selectedTimeRange == range ? Colors.white : Colors.pink[800],
-        backgroundColor: selectedTimeRange == range ? Colors.pink[800] : Colors.pink[100],
+        foregroundColor:
+            selectedTimeRange == range ? Colors.white : Colors.pink[800],
+        backgroundColor:
+            selectedTimeRange == range ? Colors.pink[800] : Colors.pink[100],
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
@@ -259,92 +267,101 @@ class _FeedingHistoryPageState extends State<FeedingHistoryPage> {
     );
   }
 
- Widget _buildFeedingSessionCard(FeedingSession session) {
-  IconData mainIcon;
-  Color mainIconColor;
+  Widget _buildFeedingSessionCard(FeedingSession session) {
+    IconData mainIcon;
+    Color mainIconColor;
 
-  // Determine main icon (feeding type)
-  switch (session.feedingType) {
-    case FeedingType.Breast:
-      mainIcon = Icons.child_care;
-      mainIconColor = Colors.pink;
-      break;
-    case FeedingType.Bottle:
-      mainIcon = Icons.baby_changing_station;
-      mainIconColor = Colors.blue;
-      break;
-    case FeedingType.Pumping:
-      mainIcon = Icons.water_drop;
-      mainIconColor = Colors.purple;
-      break;
-    default:
-      mainIcon = Icons.help_outline;
-      mainIconColor = Colors.grey;
-  }
+    // Determine main icon (feeding type)
+    switch (session.feedingType) {
+      case FeedingType.Breast:
+        mainIcon = Icons.child_care;
+        mainIconColor = Colors.pink;
+        break;
+      case FeedingType.Bottle:
+        mainIcon = Icons.baby_changing_station;
+        mainIconColor = Colors.blue;
+        break;
+      case FeedingType.Pumping:
+        mainIcon = Icons.water_drop;
+        mainIconColor = Colors.purple;
+        break;
+      default:
+        mainIcon = Icons.help_outline;
+        mainIconColor = Colors.grey;
+    }
 
-  return Card(
-    margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(15),
-    ),
-    elevation: 4,
-    child: InkWell(
-      onTap: () => _showFeedingDetails(session),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            Icon(mainIcon, size: 40, color: mainIconColor),
-            SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    _formatDateTime(session.dateTime),
-                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Type: ${session.feedingType.toString().split('.').last}',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.pink[800]),
-                      ),
-                      Text(
-                        _formatDuration(Duration(seconds: session.totalTime)),
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blue[800]),
-                      ),
-                    ],
-                  ),
-                ],
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15),
+      ),
+      elevation: 4,
+      child: InkWell(
+        onTap: () => _showFeedingDetails(session),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Icon(mainIcon, size: 40, color: mainIconColor),
+              SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _formatDateTime(session.dateTime),
+                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Type: ${session.feedingType.toString().split('.').last}',
+                          style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.pink[800]),
+                        ),
+                        Text(
+                          _formatDuration(Duration(seconds: session.totalTime)),
+                          style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue[800]),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
-    ),
-  );
-}
-
+    );
+  }
 
   void _showFeedingDetails(FeedingSession session) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Feeding Details', style: TextStyle(color: Colors.pink[800])),
+        title:
+            Text('Feeding Details', style: TextStyle(color: Colors.pink[800])),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('Date: ${_formatDateTime(session.dateTime)}'),
             const SizedBox(height: 8),
-            Text('Total Time: ${_formatDuration(Duration(seconds: session.totalTime))}', 
-                 style: TextStyle(fontWeight: FontWeight.bold)),
+            Text(
+                'Total Time: ${_formatDuration(Duration(seconds: session.totalTime))}',
+                style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
-            Text('Left Breast: ${_formatDuration(Duration(seconds: session.leftBreastDuration))}'),
-            Text('Right Breast: ${_formatDuration(Duration(seconds: session.rightBreastDuration))}'),
+            Text(
+                'Left Breast: ${_formatDuration(Duration(seconds: session.leftBreastDuration))}'),
+            Text(
+                'Right Breast: ${_formatDuration(Duration(seconds: session.rightBreastDuration))}'),
           ],
         ),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -399,7 +416,8 @@ class _FeedingHistoryPageState extends State<FeedingHistoryPage> {
               onChanged: (value) {
                 leftDuration = int.tryParse(value) ?? leftDuration;
               },
-              decoration: const InputDecoration(labelText: 'Left Breast Duration (seconds)'),
+              decoration: const InputDecoration(
+                  labelText: 'Left Breast Duration (seconds)'),
             ),
             TextFormField(
               initialValue: rightDuration.toString(),
@@ -407,7 +425,8 @@ class _FeedingHistoryPageState extends State<FeedingHistoryPage> {
               onChanged: (value) {
                 rightDuration = int.tryParse(value) ?? rightDuration;
               },
-              decoration: const InputDecoration(labelText: 'Right Breast Duration (seconds)'),
+              decoration: const InputDecoration(
+                  labelText: 'Right Breast Duration (seconds)'),
             ),
           ],
         ),
@@ -485,6 +504,7 @@ class _FeedingHistoryPageState extends State<FeedingHistoryPage> {
 }
 
 enum TimeRange { today, yesterday, last7Days, last14Days }
+
 enum FeedingType { Breast, Bottle, Pumping }
 
 class FeedingSession {

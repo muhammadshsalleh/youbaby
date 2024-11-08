@@ -8,7 +8,7 @@ enum TimePeriod { today, lastWeek, lastTwoWeeks, custom }
 
 class SleepInsightsPage extends StatefulWidget {
   final int userID;
-  const SleepInsightsPage({Key? key, required this.userID}) : super(key: key);
+  const SleepInsightsPage({super.key, required this.userID});
   @override
   _SleepInsightsPageState createState() => _SleepInsightsPageState();
 }
@@ -37,7 +37,7 @@ class _SleepInsightsPageState extends State<SleepInsightsPage> {
         .eq('id', widget.userID)
         .single();
 
-    if (response != null && response['babyBirthday'] != null) {
+    if (response['babyBirthday'] != null) {
       setState(() {
         _babyBirthday = DateTime.parse(response['babyBirthday']);
         _babyAgeInMonths = _calculateAgeInMonths(_babyBirthday!);
@@ -200,8 +200,9 @@ class _SleepInsightsPageState extends State<SleepInsightsPage> {
     Map<String, int> distribution = {};
     for (var sleep in data) {
       DateTime? sleepStart = _parseDateTime(sleep['sleepStart']);
-      if (sleepStart == null)
+      if (sleepStart == null) {
         continue; // Skip this entry if the date is invalid
+      }
       String bedtime = DateFormat('HH:mm').format(sleepStart);
       distribution[bedtime] = (distribution[bedtime] ?? 0) + 1;
     }
@@ -313,7 +314,7 @@ class _SleepInsightsPageState extends State<SleepInsightsPage> {
   }
 
   Widget _buildScrollableTimePeriodSelector() {
-    return Container(
+    return SizedBox(
       height: 50,
       child: ListView(
         scrollDirection: Axis.horizontal,

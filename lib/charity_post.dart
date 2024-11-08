@@ -16,14 +16,14 @@ class CharityPost extends StatefulWidget {
   final String status;
 
   const CharityPost({
-    Key? key,
+    super.key,
     required this.postId,
     required this.userId,
     required this.title,
     required this.content,
     this.imageUrl,
     required this.status,
-  }) : super(key: key);
+  });
 
   @override
   _CharityPostState createState() => _CharityPostState();
@@ -37,7 +37,7 @@ class _CharityPostState extends State<CharityPost> {
   int? _editingQuestionId;
   bool _showAllQnA = false;
   String? postAuthorName;
-  bool _isExpanded = false;
+  final bool _isExpanded = false;
 
   @override
   void initState() {
@@ -196,64 +196,63 @@ class _CharityPostState extends State<CharityPost> {
   }
 
   Future<void> _submitPostReport() async {
-  final reportResult = await showDialog<Map<String, dynamic>>(
-    context: context,
-    builder: (context) => ReportPostDialog(),
-  );
+    final reportResult = await showDialog<Map<String, dynamic>>(
+      context: context,
+      builder: (context) => ReportPostDialog(),
+    );
 
-  if (reportResult == null) return; // User cancelled the report dialog
+    if (reportResult == null) return; // User cancelled the report dialog
 
-  try {
-    final adminCheck = await Supabase.instance.client
-        .from('userAdmin')
-        .select('id')
-        .eq('id', widget.userId)
-        .maybeSingle();
+    try {
+      final adminCheck = await Supabase.instance.client
+          .from('userAdmin')
+          .select('id')
+          .eq('id', widget.userId)
+          .maybeSingle();
 
-    if (adminCheck != null) {
+      if (adminCheck != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Admins cannot report posts')),
+        );
+        return;
+      }
+
+      final postDetails = await Supabase.instance.client
+          .from('charity_posts')
+          .select('user_id')
+          .eq('id', widget.postId)
+          .single();
+      final int authorUserId = postDetails['user_id'];
+
+      final ReportReason reason = reportResult['reason'];
+      final String? customReason = reportResult['customReason'];
+
+      await Supabase.instance.client.from('reported_post_charity').insert({
+        'post_id': widget.postId,
+        'user_id': authorUserId,
+        'reporter_id': widget.userId,
+        'reason': reason == ReportReason.other
+            ? customReason
+            : getReportReasonText(reason),
+        'report_type': reason.toString().split('.').last,
+        'reported_at': DateTime.now().toIso8601String(),
+        'status': 'pending',
+        'post_title': widget.title,
+        'post_content': widget.content,
+      });
+
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Admins cannot report posts')),
+        const SnackBar(
+          content: Text('Post reported successfully'),
+          backgroundColor: Color(0xFFA91B60),
+        ),
       );
-      return;
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error reporting post: $e')),
+      );
     }
-
-    final postDetails = await Supabase.instance.client
-        .from('charity_posts')
-        .select('user_id')
-        .eq('id', widget.postId)
-        .single();
-    final int authorUserId = postDetails['user_id'];
-
-    final ReportReason reason = reportResult['reason'];
-    final String? customReason = reportResult['customReason'];
-
-    await Supabase.instance.client.from('reported_post_charity').insert({
-      'post_id': widget.postId,
-      'user_id': authorUserId,
-      'reporter_id': widget.userId,
-      'reason': reason == ReportReason.other 
-        ? customReason 
-        : getReportReasonText(reason),
-      'report_type': reason.toString().split('.').last,
-      'reported_at': DateTime.now().toIso8601String(),
-      'status': 'pending',
-      'post_title': widget.title,
-      'post_content': widget.content,
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Post reported successfully'),
-        backgroundColor: Color(0xFFA91B60),
-      ),
-    );
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Error reporting post: $e')),
-    );
   }
-}
-  
 
   @override
   void dispose() {
@@ -289,7 +288,7 @@ class _CharityPostState extends State<CharityPost> {
           children: [
             // Hero Image Section
             if (widget.imageUrl != null)
-              Container(
+              SizedBox(
                 height: MediaQuery.of(context).size.height * 0.35,
                 width: double.infinity,
                 child: Stack(
@@ -367,14 +366,15 @@ class _CharityPostState extends State<CharityPost> {
                       ),
                   ],
                   const SizedBox(height: 16.0),
-                  
+
                   // Status Badge
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12.0, vertical: 6.0),
                     decoration: BoxDecoration(
-                      color: widget.status == 'Available' 
-                        ? const Color(0xFF4CAF50)
-                        : const Color(0xFFE57373),
+                      color: widget.status == 'Available'
+                          ? const Color(0xFF4CAF50)
+                          : const Color(0xFFE57373),
                       borderRadius: BorderRadius.circular(20.0),
                       boxShadow: [
                         BoxShadow(
@@ -393,9 +393,9 @@ class _CharityPostState extends State<CharityPost> {
                       ),
                     ),
                   ),
-                  
+
                   const SizedBox(height: 24.0),
-                  
+
                   // Content Card
                   Card(
                     elevation: 2,
@@ -444,8 +444,8 @@ class _CharityPostState extends State<CharityPost> {
                         children: [
                           Row(
                             children: const [
-                              Icon(Icons.question_answer, 
-                                color: Color(0xFFA91B60)),
+                              Icon(Icons.question_answer,
+                                  color: Color(0xFFA91B60)),
                               SizedBox(width: 8.0),
                               Text(
                                 'Questions & Answers',
@@ -458,7 +458,7 @@ class _CharityPostState extends State<CharityPost> {
                             ],
                           ),
                           const Divider(height: 24.0),
-                          
+
                           // Q&A List
                           if (_qna.isEmpty)
                             const Center(
@@ -488,15 +488,18 @@ class _CharityPostState extends State<CharityPost> {
                             ListView.separated(
                               physics: const NeverScrollableScrollPhysics(),
                               shrinkWrap: true,
-                              itemCount: _showAllQnA ? _qna.length : min(2, _qna.length),
-                              separatorBuilder: (context, index) => const Divider(height: 32.0),
+                              itemCount: _showAllQnA
+                                  ? _qna.length
+                                  : min(2, _qna.length),
+                              separatorBuilder: (context, index) =>
+                                  const Divider(height: 32.0),
                               itemBuilder: (context, index) {
                                 final question = _qna[index];
-                                bool isPostAuthor = postAuthor != null && 
+                                bool isPostAuthor = postAuthor != null &&
                                     postAuthor == widget.userId;
 
                                 return _buildQuestionCard(
-                                  question, 
+                                  question,
                                   isPostAuthor,
                                 );
                               },
@@ -586,7 +589,6 @@ class _CharityPostState extends State<CharityPost> {
                 ),
               ],
             ),
-
             if (question['answer'] != null) ...[
               const SizedBox(height: 16.0),
               Container(
@@ -614,9 +616,10 @@ class _CharityPostState extends State<CharityPost> {
                         child: TextButton.icon(
                           onPressed: () {
                             setState(() {
-                              _editingQuestionId = _editingQuestionId == question['id']
-                                  ? null
-                                  : question['id'];
+                              _editingQuestionId =
+                                  _editingQuestionId == question['id']
+                                      ? null
+                                      : question['id'];
                               _answerController.text = question['answer'];
                             });
                           },
@@ -653,7 +656,6 @@ class _CharityPostState extends State<CharityPost> {
                 ),
               ),
             ],
-
             if (_editingQuestionId == question['id'])
               _buildAnswerInput(question['id']),
           ],
@@ -682,7 +684,8 @@ class _CharityPostState extends State<CharityPost> {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12.0),
-              borderSide: const BorderSide(color: Color(0xFFA91B60), width: 2.0),
+              borderSide:
+                  const BorderSide(color: Color(0xFFA91B60), width: 2.0),
             ),
             filled: true,
             fillColor: Colors.white,
@@ -737,7 +740,8 @@ class _CharityPostState extends State<CharityPost> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.0),
-                borderSide: const BorderSide(color: Color(0xFFA91B60), width: 2.0),
+                borderSide:
+                    const BorderSide(color: Color(0xFFA91B60), width: 2.0),
               ),
               filled: true,
               fillColor: Colors.white,
@@ -809,6 +813,8 @@ String getReportReasonText(ReportReason reason) {
 }
 
 class ReportPostDialog extends StatefulWidget {
+  const ReportPostDialog({super.key});
+
   @override
   _ReportPostDialogState createState() => _ReportPostDialogState();
 }
@@ -830,12 +836,9 @@ class _ReportPostDialogState extends State<ReportPostDialog> {
         children: const [
           Icon(Icons.report_problem, color: Color(0xFFA91B60)),
           SizedBox(width: 8),
-          Text('Report Post', 
-            style: TextStyle(
-              color: Color(0xFFA91B60),
-              fontWeight: FontWeight.bold
-            )
-          ),
+          Text('Report Post',
+              style: TextStyle(
+                  color: Color(0xFFA91B60), fontWeight: FontWeight.bold)),
         ],
       ),
       content: SingleChildScrollView(
@@ -860,18 +863,18 @@ class _ReportPostDialogState extends State<ReportPostDialog> {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: _selectedReason == reason 
-                      ? const Color(0xFFA91B60) 
-                      : Colors.grey.shade300,
+                    color: _selectedReason == reason
+                        ? const Color(0xFFA91B60)
+                        : Colors.grey.shade300,
                   ),
                 ),
                 child: RadioListTile<ReportReason>(
                   title: Text(
                     getReportReasonText(reason),
                     style: TextStyle(
-                      color: _selectedReason == reason 
-                        ? const Color(0xFFA91B60) 
-                        : Colors.black87,
+                      color: _selectedReason == reason
+                          ? const Color(0xFFA91B60)
+                          : Colors.black87,
                     ),
                   ),
                   value: reason,
@@ -884,7 +887,7 @@ class _ReportPostDialogState extends State<ReportPostDialog> {
                   },
                 ),
               );
-            }).toList(),
+            }),
             if (_selectedReason == ReportReason.other)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -927,7 +930,7 @@ class _ReportPostDialogState extends State<ReportPostDialog> {
           ),
           onPressed: () {
             if (_selectedReason != null) {
-              if (_selectedReason == ReportReason.other && 
+              if (_selectedReason == ReportReason.other &&
                   _otherReasonController.text.trim().isEmpty) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
@@ -940,9 +943,9 @@ class _ReportPostDialogState extends State<ReportPostDialog> {
               // Return a map containing both the reason and the custom text if applicable
               Navigator.of(context).pop({
                 'reason': _selectedReason,
-                'customReason': _selectedReason == ReportReason.other 
-                  ? _otherReasonController.text 
-                  : null,
+                'customReason': _selectedReason == ReportReason.other
+                    ? _otherReasonController.text
+                    : null,
               });
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
