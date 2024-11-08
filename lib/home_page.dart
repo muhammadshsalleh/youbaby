@@ -654,7 +654,7 @@ class _HomePageState extends State<HomePage> {
                                   const SizedBox(height: 8.0),
                                   Text(
                                     article['detail'] != null
-                                        ? article['detail'].substring(0, 150) +
+                                        ? article['detail'].substring(0, 120) +
                                             '...'
                                         : 'No Content',
                                     style: const TextStyle(

@@ -55,7 +55,7 @@ class _GrowthInsightsPageState extends State<GrowthInsightsPage> {
     if (_userData == null) return;
 
     final birthDate = DateTime.parse(_userData!['babyBirthday']);
-    final now = DateTime.now();
+    //final now = DateTime.now();
 
     setState(() {
       _currentFilter = filter;
@@ -99,8 +99,8 @@ class _GrowthInsightsPageState extends State<GrowthInsightsPage> {
     if (_filteredData.isEmpty) return [];
     
     // Normalize the data points to make the graph smoother
-    final minX = 0.0;
-    final maxX = (_filteredData.length - 1).toDouble();
+    // final minX = 0.0;
+    // final maxX = (_filteredData.length - 1).toDouble();
     
     return _filteredData.asMap().entries.map((entry) {
       return FlSpot(
