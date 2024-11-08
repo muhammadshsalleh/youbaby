@@ -38,18 +38,18 @@ class _GrowthInsightsPageState extends State<GrowthInsightsPage> {
         51.8, 56.7, 60.4, 63.4, 65.9, 67.9, // 0-5 months upper bound
         69.6, 71.2, 72.6, 74.0, 75.3, 76.5, // 6-11 months upper bound
       ],
-      // 'weight': [
-      //   3.3, 4.5, 5.6, 6.4, 7.0, 7.5, // 0-5 months
-      //   7.9, 8.3, 8.6, 8.9, 9.2, 9.4, // 6-11 months
-      // ],
-      // 'weightP3': [
-      //   2.9, 4.0, 5.1, 5.8, 6.4, 6.9, // 0-5 months lower bound
-      //   7.3, 7.7, 8.0, 8.3, 8.6, 8.8, // 6-11 months lower bound
-      // ],
-      // 'weightP97': [
-      //   3.9, 5.2, 6.3, 7.2, 7.8, 8.3, // 0-5 months upper bound
-      //   8.7, 9.1, 9.4, 9.7, 10.0, 10.2, // 6-11 months upper bound
-      // ],
+      'weight': [
+        3.3, 4.5, 5.6, 6.4, 7.0, 7.5, // 0-5 months
+        7.9, 8.3, 8.6, 8.9, 9.2, 9.4, // 6-11 months
+      ],
+      'weightP3': [
+        2.9, 4.0, 5.1, 5.8, 6.4, 6.9, // 0-5 months lower bound
+        7.3, 7.7, 8.0, 8.3, 8.6, 8.8, // 6-11 months lower bound
+      ],
+      'weightP97': [
+        3.9, 5.2, 6.3, 7.2, 7.8, 8.3, // 0-5 months upper bound
+        8.7, 9.1, 9.4, 9.7, 10.0, 10.2, // 6-11 months upper bound
+      ],
     },
     'female': { /// female data need to checked
       'height': [
@@ -128,7 +128,7 @@ class _GrowthInsightsPageState extends State<GrowthInsightsPage> {
     } catch (e) {
       debugPrint('Error loading data: $e');
       setState(() => isLoading = false);
-    }
+    } 
   }
 
   int _calculateAgeInMonths(DateTime birthDate, DateTime currentDate) {
